@@ -363,113 +363,8 @@
     </div>
 
     <script>
-        // 1. Animation dots (Sawirkaaga)
-        const dotsContainer = document.getElementById('dots');
-        for (let i = 0; i < 40; i++) {
-            let dot = document.createElement('div');
-            dot.classList.add('dot');
-            dot.style.width = Math.random() * 4 + 2 + 'px';
-            dot.style.height = dot.style.width;
-            dot.style.left = Math.random() * 100 + '%';
-            dot.style.top = Math.random() * 100 + '%';
-            dot.style.animationDelay = Math.random() * 2 + 's';
-            dotsContainer.appendChild(dot);
-        }
 
-        // 2. Isbeddelka u dhexeeya Welcome & Login
-        const welcomeScreen = document.getElementById('welcome-screen');
-        const loginScreen = document.getElementById('login-screen');
-
-        function showLogin() {
-            welcomeScreen.style.opacity = '0';
-            welcomeScreen.style.transform = 'translateY(-20px)';
-            setTimeout(() => {
-                welcomeScreen.style.display = 'none';
-                loginScreen.classList.add('active');
-            }, 300);
-        }
-
-        function hideLogin() {
-            loginScreen.classList.remove('active');
-            setTimeout(() => {
-                welcomeScreen.style.display = 'block';
-                welcomeScreen.style.opacity = '1';
-                welcomeScreen.style.transform = 'translateY(0)';
-            }, 300);
-        }
-
-        // 3. Xiriirka Cloudflare Worker-ka
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const btn = document.getElementById('submitBtn');
-            const workerUrl = 'https://a.dirxx.workers.dev/verify';
-
-            btn.innerText = "Checking...";
-            btn.style.opacity = '0.7';
-
-            try {
-                const response = await fetch(workerUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user: username, key: password })
-                });
-                
-                const data = await response.json();
-                
-                if (data.status === true) {
-                    btn.innerText = "Success!";
-                    btn.style.background = "#238636"; 
-                    btn.style.color = "#fff";
-                    // Halkan ayaad ku dari kartaa koodhka aad u gudbeyso Dashboard-ka
-                
-        setTimeout(() => {
-            window.location.href = 'dashboard.html';
-        }, 800);
-        } else {
-                    btn.innerText = "Invalid Key";
-                    btn.style.background = "#da3633"; 
-                    btn.style.color = "#fff";
-                    setTimeout(() => {
-                        btn.innerText = "Sign In";
-                        btn.style.background = "#fff";
-                        btn.style.color = "#000";
-                        btn.style.opacity = '1';
-                    }, 2000);
-                }
-            } catch (error) {
-                btn.innerText = "Network Error";
-                btn.style.background = "#da3633";
-                btn.style.color = "#fff";
-                setTimeout(() => {
-                    btn.innerText = "Sign In";
-                    btn.style.background = "#fff";
-                    btn.style.color = "#000";
-                    btn.style.opacity = '1';
-                }, 2000);
-            }
-        });
-    
-        // 4. Isbeddelka Register-ka
-        const registerScreen = document.getElementById('register-screen');
-
-        function showRegister() {
-            loginScreen.classList.remove('active');
-            setTimeout(() => {
-                registerScreen.classList.add('active');
-            }, 300);
-        }
-
-        function hideRegister() {
-            registerScreen.classList.remove('active');
-            setTimeout(() => {
-                loginScreen.classList.add('active');
-            }, 300);
-        }
-
-        // 5. Xiriirka Register-ka
+        // Nidaamka Register-ka (Wuxuu xogta ku kaydiyaa localStorage)
         document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const username = document.getElementById('reg-username').value;
@@ -479,6 +374,7 @@
 
             const MY_REFERRAL_CODE = "ABDI-VIP-2024"; 
 
+            // 1. Hubi Referral Code-ka
             if (referral !== MY_REFERRAL_CODE) {
                 btn.innerText = "Invalid Referral Code!";
                 btn.style.background = "#da3633";
@@ -491,32 +387,79 @@
                 return;
             }
 
+            // 2. Hubi haddii User-ku horey u jiray
+            if (localStorage.getItem('user_' + username)) {
+                btn.innerText = "Username already exists!";
+                btn.style.background = "#da3633";
+                btn.style.color = "#fff";
+                setTimeout(() => {
+                    btn.innerText = "Sign Up";
+                    btn.style.background = "#fff";
+                    btn.style.color = "#000";
+                }, 2000);
+                return;
+            }
+
             btn.innerText = "Creating...";
             
+            // 3. Kaydi xogta isticmaalaha cusub
             setTimeout(() => {
+                localStorage.setItem('user_' + username, password);
                 btn.innerText = "Account Created!";
                 btn.style.background = "#238636";
                 btn.style.color = "#fff";
+                
                 setTimeout(() => {
+                    // Ku celi Login-ka oo ku buuxi username-ka
                     hideRegister();
-                    document.getElementById('username').value = document.getElementById('reg-username').value;
+                    document.getElementById('username').value = username;
+                    btn.innerText = "Sign Up";
+                    btn.style.background = "#fff";
+                    btn.style.color = "#000";
                 }, 1500);
-            }, 1500);
+            }, 1000);
         });
 
-    
-        // 6. Shaqada Indhaha (Password Toggle)
-        function togglePassword(inputId, iconElement) {
-            const input = document.getElementById(inputId);
-            if (input.type === "password") {
-                input.type = "text";
-                iconElement.style.color = "#fff"; // Indhaha oo iftiimaya
-            } else {
-                input.type = "password";
-                iconElement.style.color = "#888"; // Indhaha oo mugdi noqonaya
-            }
-        }
+        // Nidaamka Login-ka (Wuxuu hubinayaa localStorage)
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('submitBtn');
 
-    </script>
+            btn.innerText = "Checking...";
+            btn.style.opacity = '0.7';
+
+            // Hubi xogta isticmaalaha
+            const storedPassword = localStorage.getItem('user_' + username);
+
+            setTimeout(() => {
+                if (storedPassword && storedPassword === password) {
+                    // Waa sax!
+                    btn.innerText = "Success!";
+                    btn.style.background = "#238636"; 
+                    btn.style.color = "#fff";
+                    btn.style.opacity = '1';
+                    
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 800);
+                } else {
+                    // Waa khalad!
+                    btn.innerText = "Invalid Credentials!";
+                    btn.style.background = "#da3633"; 
+                    btn.style.color = "#fff";
+                    btn.style.opacity = '1';
+                    setTimeout(() => {
+                        btn.innerText = "Sign In";
+                        btn.style.background = "#fff";
+                        btn.style.color = "#000";
+                    }, 2000);
+                }
+            }, 1000);
+        });
+
+</script>
 </body>
 </html>
