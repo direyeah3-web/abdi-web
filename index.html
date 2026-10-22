@@ -129,40 +129,58 @@
     </div>
 
 
+    
+
     <script>
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault(); 
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const btn = document.querySelector('.btn');
-            const workerUrl = 'https://a.dirxx.workers.dev/verify'; 
+        document.addEventListener("DOMContentLoaded", function() {
+            const form = document.getElementById('loginForm');
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault(); 
+                    const username = document.getElementById('username').value;
+                    const password = document.getElementById('password').value;
+                    const btn = document.querySelector('.btn');
+                    const workerUrl = 'https://a.dirxx.workers.dev/verify'; 
 
-            btn.innerText = "Checking...";
+                    btn.innerText = "Checking...";
+                    btn.disabled = true; // Jooji inuu laba jeer riixo
 
-            try {
-                const response = await fetch(workerUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user: username, key: password })
+                    try {
+                        const response = await fetch(workerUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ user: username, key: password })
+                        });
+                        const data = await response.json();
+                        
+                        if (data.status === true) {
+                            btn.innerText = "Success!";
+                            btn.style.background = "#238636"; 
+                        } else {
+                            btn.innerText = "Invalid Key";
+                            btn.style.background = "#da3633"; 
+                            setTimeout(() => {
+                                btn.innerText = "Sign In";
+                                btn.style.background = "linear-gradient(90deg, #1f6feb, #388bfd)";
+                                btn.disabled = false;
+                            }, 2000);
+                        }
+                    } catch (error) {
+                        btn.innerText = "Network Error";
+                        btn.style.background = "#da3633";
+                        setTimeout(() => {
+                            btn.innerText = "Sign In";
+                            btn.style.background = "linear-gradient(90deg, #1f6feb, #388bfd)";
+                            btn.disabled = false;
+                        }, 2000);
+                    }
                 });
-                const data = await response.json();
-                if (data.status === true) {
-                    btn.innerText = "Success!";
-                    btn.style.background = "#238636"; 
-                } else {
-                    btn.innerText = "Invalid Key";
-                    btn.style.background = "#da3633"; 
-                    setTimeout(() => {
-                        btn.innerText = "Sign In";
-                        btn.style.background = "linear-gradient(90deg, #1f6feb, #388bfd)";
-                    }, 2000);
-                }
-            } catch (error) {
-                btn.innerText = "Network Error";
-                btn.style.background = "#da3633";
+            } else {
+                console.error("Form-ka loginForm lama helin!");
             }
         });
     </script>
 </body>
+
 
 </html>
