@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Meta Tags-ka Cache-ka oo lagu qasbay in uu cusboonaysiiyo -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <title>Abdi VIP | Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: #000000; color: #ffffff; display: flex; height: 100vh; overflow: hidden; }
 
-        /* ===== SIDEBAR (Casri + SVG) ===== */
+        /* ===== SIDEBAR (SVG) ===== */
         .sidebar {
             width: 260px;
             background-color: #0a0a0a;
@@ -28,6 +33,7 @@
             font-size: 20px;
             font-weight: 700;
             margin-bottom: 40px;
+            color: #fff;
         }
 
         .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; }
@@ -57,7 +63,7 @@
             margin-top: 20px;
         }
         .avatar { width: 40px; height: 40px; border-radius: 50%; background: #fff; color: #000; display: flex; justify-content: center; align-items: center; font-weight: bold; }
-        .user-info p { font-size: 14px; font-weight: 600; }
+        .user-info p { font-size: 14px; font-weight: 600; color: #fff; }
         .user-info span { font-size: 12px; color: #888; }
 
         /* ===== MAIN CONTENT ===== */
@@ -88,11 +94,11 @@
             transition: transform 0.2s;
         }
         .stat-card:hover { transform: translateY(-3px); border-color: #333; }
-        .stat-card h3 { font-size: 36px; margin-bottom: 5px; }
+        .stat-card h3 { font-size: 36px; margin-bottom: 5px; color: #fff; }
         .stat-card p { font-size: 14px; color: #888; }
 
         /* Quick Actions */
-        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #fff; }
         .actions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
         .action-btn {
             background-color: #1c1c1e;
@@ -117,7 +123,7 @@
     <div class="sidebar">
         <div>
             <div class="logo-area">
-                <svg style="width:24px; height:24px; fill:#fff;" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+                <svg style="width:24px; height:24px; fill:#ffd700;" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
                 Abdi VIP
             </div>
             <ul class="nav-menu">
