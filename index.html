@@ -142,7 +142,7 @@
     </div>
 
     <script>
-        // 1. Navigation Functions (Badhannada)
+        // 1. Navigation Functions
         const welcomeScreen = document.getElementById('welcome-screen');
         const loginScreen = document.getElementById('login-screen');
         const registerScreen = document.getElementById('register-screen');
@@ -171,10 +171,9 @@
             else { input.type = "password"; iconElement.style.color = "#888"; }
         }
 
-        // 3. Animations Dots (Quruxda)
+        // 3. Dots Animation (Quruxda)
         const dotsContainer = document.getElementById('dots');
         if (dotsContainer) {
-            const colors = ['#ffffff', '#a0a0a0', '#505050'];
             for (let i = 0; i < 50; i++) {
                 let dot = document.createElement('div');
                 dot.classList.add('dot');
@@ -187,7 +186,6 @@
                 let y = Math.sin(angle) * radius + 100;
                 dot.style.left = x + 'px';
                 dot.style.top = y + 'px';
-                dot.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                 dot.style.animationDelay = (Math.random() * 2) + 's, ' + (Math.random() * 4) + 's';
                 dotsContainer.appendChild(dot);
             }
