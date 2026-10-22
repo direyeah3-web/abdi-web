@@ -58,7 +58,7 @@ h1{font-size:30px;letter-spacing:-.6px;margin:0}.sub{color:var(--m);font-size:14
 .sh .t{text-align:center;color:var(--m);font-size:13px;padding:14px}
 .sh button{display:flex;width:100%;justify-content:space-between;align-items:center;padding:17px 22px;background:none;border:0;border-top:1px solid var(--line);color:var(--b);font-size:19px;cursor:pointer;font-family:inherit}
 .sh button:active{background:rgba(255,255,255,.1)}.sh button.cur{font-weight:600}
-.chip{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--t);border-radius:12px;padding:6px 10px;font:12px ui-monospace,Menlo,monospace;cursor:pointer}.chip:active{transform:scale(.95)}</style></head><body>
+.chip{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--t);border-radius:12px;padding:6px 10px;font:12px ui-monospace,Menlo,monospace;cursor:pointer}.chip:active{transform:scale(.95)}.an-g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.an-s{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:14px}.an-s small{display:block;opacity:.6;font-size:12px;margin-bottom:4px}.an-s b{font-size:26px}.an-bars{display:flex;align-items:flex-end;gap:8px;height:130px}.an-b{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px}.an-b i{display:block;width:100%;background:#0a84ff;border-radius:6px 6px 0 0;min-height:2px;margin:3px 0}.st-i{width:100%;box-sizing:border-box;margin-top:10px;padding:13px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--t);font-size:15px}.st-b{width:100%;margin-top:12px;padding:13px;border:0;border-radius:14px;background:#0a84ff;color:#fff;font-weight:600;font-size:15px;cursor:pointer}.st-d{background:#ff453a}</style></head><body>
 <aside id="side"><div class="brand">Abdi</div></aside>
 <main>
 <header><div><h1 id="ttl"></h1><div class="sub" id="sub"></div></div>
@@ -270,5 +270,92 @@ $("v-users").innerHTML='<input class="srch" id="u-q" placeholder="Raadi user…"
 $("u-q").oninput=e=>{U.q=e.target.value.trim().toLowerCase();renderUsers()};
 $("u-list").onclick=e=>{const b=e.target.closest("button");if(b)uact(b.dataset.a,b.dataset.id,b.dataset.kid)};
 loadUsers();
+}
+
+if($("v-analytics")){
+const A=$("v-analytics");
+const E=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const arr=x=>Array.isArray(x)?x:[];
+const f1=(o,l)=>{for(const k of l)if(o[k]!=null)return o[k];return null};
+const fd=t=>new Date(t).toLocaleDateString([],{day:"numeric",month:"short"});
+async function loadAnalytics(){
+A.innerHTML='<div class="card empty"><b>Analytics</b>Waa la soo rarayaa...</div>';
+try{
+const j=async p=>arr(await(await api(p)).json());
+const [keys,users,refs,acts]=await Promise.all([
+j("/license_keys?select=*&order=created_at.desc&limit=1000"),
+j("/profiles?select=id,username,is_admin,status,created_at&limit=1000"),
+j("/referral_codes?select=*&limit=1000"),
+j("/activity?select=message,created_at&order=created_at.desc&limit=1000")]);
+const now=Date.now(),wk=now+7*864e5;
+const ex=k=>{const v=f1(k,["expires_at","expiry","expires","expire_at","expiry_date","expires_on"]);return v?new Date(v).getTime():null};
+const on=k=>(k.status?k.status==="active":k.is_active!==false);
+const expd=k=>{const e=ex(k);return e!==null&&e<now};
+const active=keys.filter(k=>on(k)&&!expd(k));
+const expired=keys.filter(expd);
+const free=keys.filter(k=>!k.assigned_to);
+const soon=keys.filter(k=>{const e=ex(k);return on(k)&&e!==null&&e>=now&&e<=wk}).sort((a,b)=>ex(a)-ex(b));
+const used=refs.reduce((s,r)=>s+(Number(f1(r,["used","uses","used_count","times_used"]))||0),0);
+const banned=users.filter(x=>x.status!=="active").length;
+const days=[];
+for(let i=6;i>=0;i--){const dd=new Date();dd.setHours(0,0,0,0);dd.setDate(dd.getDate()-i);days.push({d:dd,n:0})}
+acts.forEach(a=>{const t=new Date(a.created_at);t.setHours(0,0,0,0);const x=days.find(y=>y.d.getTime()===t.getTime());if(x)x.n++});
+const mx=Math.max(1,...days.map(x=>x.n));
+const st=(l,v)=>'<div class="an-s"><small>'+l+'</small><b>'+v+'</b></div>';
+A.innerHTML='<div class="an-g">'+st("Keys guud",keys.length)+st("Active",active.length)+st("Expired",expired.length)+st("Aan la siin",free.length)+st("Users",users.length)+st("Banned",banned)+st("Referral la isticmaalay",used)+st("Referral codes",refs.length)+'</div>'
++'<div class="card"><b>Hawlaha 7 maalmood</b><div class="an-bars" style="margin-top:14px">'+days.map(x=>'<div class="an-b">'+x.n+'<i style="height:'+Math.round(x.n/mx*70)+'px"></i><span>'+x.d.toLocaleDateString([],{weekday:"short"})+'</span></div>').join("")+'</div></div>'
++'<div class="card" style="margin-top:12px"><b>Keys dhacaya 7 maalmood gudahood</b>'+(soon.length?soon.map(k=>'<div class="km" style="margin-top:8px"><span style="font-family:ui-monospace,monospace">'+E(k.key)+'</span> · '+fd(ex(k))+'</div>').join(""):'<div class="km" style="margin-top:8px">Midna ma dhacayo</div>')+'</div>';
+}catch(e){A.innerHTML='<div class="card empty"><b>Error</b>Data lama helin.</div>'}
+}
+let was=false;
+const chk=()=>{const v=getComputedStyle(A).display!=="none"&&A.offsetParent!==null;if(v&&!was)loadAnalytics();was=v};
+new MutationObserver(chk).observe(A,{attributes:true,attributeFilter:["class","style","hidden"]});
+document.addEventListener("click",()=>setTimeout(chk,80));
+chk();
+}
+
+if($("v-settings")){
+const S=$("v-settings");
+const E=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const hd=()=>({apikey:KEY,Authorization:"Bearer "+localStorage.getItem("abdi_tok"),"Content-Type":"application/json"});
+const putPw=pw=>fetch(SB+"/auth/v1/user",{method:"PUT",headers:hd(),body:JSON.stringify({password:pw})});
+function renderSettings(){
+S.innerHTML='<div class="card"><b>Profile</b><div class="km" style="margin-top:8px">Username: <span style="font-family:ui-monospace,monospace">'+E(u)+'</span></div></div>'
++'<div class="card" style="margin-top:12px"><b>Beddel password</b><input id="st-p1" type="password" placeholder="Password cusub" class="st-i"><input id="st-p2" type="password" placeholder="Ku celi password-ka" class="st-i"><button id="st-pw" class="st-b">Cusboonaysii password</button></div>'
++'<div class="card" style="margin-top:12px"><b>Backup</b><div class="km" style="margin-top:6px">Soo dejiso data-ga oo JSON ah</div><button id="st-ex" class="st-b">Export JSON</button></div>'
++'<div class="card" style="margin-top:12px"><b>Activity log</b><div class="km" style="margin-top:6px">Tirtir dhammaan hawlaha la diiwaangeliyay</div><button id="st-cl" class="st-b st-d">Clear activity</button></div>';
+$("st-pw").onclick=async()=>{
+const a=$("st-p1").value,b=$("st-p2").value;
+if(a.length<6)return toast("Password-ku waa inuu ahaadaa 6+ xaraf");
+if(a!==b)return toast("Labada password isma waafaqaan");
+try{
+let r=await putPw(a);
+if(r.status===401&&await refresh())r=await putPw(a);
+if(r.ok){toast("Password waa la beddelay");$("st-p1").value="";$("st-p2").value=""}
+else{const j=await r.json().catch(()=>({}));toast(j.msg||j.message||"Ma suurtagalin")}
+}catch(e){toast("Error")}};
+$("st-ex").onclick=async()=>{
+try{
+const o={};
+for(const t of ["license_keys","profiles","referral_codes","activity"]){o[t]=await(await api("/"+t+"?select=*&limit=10000")).json()}
+const bl=new Blob([JSON.stringify(o,null,2)],{type:"application/json"});
+const a=document.createElement("a");
+a.href=URL.createObjectURL(bl);
+a.download="abdi-backup-"+new Date().toISOString().slice(0,10)+".json";
+document.body.appendChild(a);a.click();a.remove();
+toast("Backup waa la soo dejiyay");
+}catch(e){toast("Error")}};
+$("st-cl").onclick=async()=>{
+if(!confirm("Dhammaan activity log-ka ma tirtiraa?"))return;
+try{
+const r=await api("/activity?created_at=not.is.null",{method:"DELETE",headers:{Prefer:"return=minimal"}});
+toast(r.ok?"Activity waa la tirtiray":"Ma suurtagalin (ogolaansho la'aan)");
+}catch(e){toast("Error")}};
+}
+let was=false;
+const chk=()=>{const v=getComputedStyle(S).display!=="none"&&S.offsetParent!==null;if(v&&!was)renderSettings();was=v};
+new MutationObserver(chk).observe(S,{attributes:true,attributeFilter:["class","style","hidden"]});
+document.addEventListener("click",()=>setTimeout(chk,80));
+chk();
 }
 </script></body></html>
