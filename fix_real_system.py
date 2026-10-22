@@ -1,0 +1,228 @@
+html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Abdi Web | Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #000000; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+        .app-container { width: 100%; max-width: 400px; height: 100vh; max-height: 800px; display: flex; flex-direction: column; padding: 30px 20px; position: relative; }
+        
+        .text-content { text-align: center; margin-bottom: 40px; transition: all 0.5s ease; }
+        .text-content h1 { font-size: 36px; font-weight: 600; letter-spacing: -1px; margin-bottom: 10px; }
+        .text-content p { color: #888; font-size: 15px; }
+
+        .buttons-container { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; transition: all 0.5s ease; }
+        .btn { width: 100%; padding: 18px; border-radius: 30px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s, opacity 0.2s; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .btn:active { transform: scale(0.98); }
+        .btn-white { background-color: #ffffff; color: #000000; }
+        .btn-dark { background-color: #1c1c1e; color: #ffffff; }
+
+        .footer-text { text-align: center; font-size: 11px; color: #666; line-height: 1.5; padding-bottom: 20px; }
+        .footer-text a { color: #aaa; text-decoration: underline; }
+
+        .login-form-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; display: flex; flex-direction: column; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transform: translateY(20px); transition: opacity 0.4s ease, transform 0.4s ease; z-index: 10; }
+        .login-form-container.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+        .back-btn { position: absolute; top: 40px; left: 20px; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
+
+        .form-group { margin-bottom: 20px; position: relative; }
+        .form-group label { display: block; font-size: 13px; color: #888; margin-bottom: 8px; margin-left: 10px; }
+        .form-group input { width: 100%; padding: 18px; border-radius: 15px; background-color: #1c1c1e; border: 1px solid #333; color: #fff; font-size: 16px; outline: none; transition: border-color 0.3s; }
+        .form-group input:focus { border-color: #fff; }
+
+        .password-wrapper { position: relative; display: flex; align-items: center; }
+        .password-wrapper input { width: 100%; padding-right: 45px; }
+        .eye-icon { position: absolute; right: 15px; cursor: pointer; color: #888; display: flex; align-items: center; justify-content: center; }
+        .eye-icon svg { width: 20px; height: 20px; fill: currentColor; }
+
+        .submit-btn { margin-top: 10px; background-color: #fff; color: #000; }
+        .error-msg { color: #da3633; text-align: center; margin-top: 10px; font-size: 14px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- WELCOME SCREEN -->
+        <div id="welcome-screen" class="fade-in-up">
+            <div class="text-content">
+                <h1>Welcome</h1>
+                <p>Your journey starts from here</p>
+            </div>
+            <div class="buttons-container">
+                <button class="btn btn-white" onclick="showLogin()">Horay u soco</button>
+                <button class="btn btn-dark">Continue</button>
+            </div>
+            <div class="footer-text">
+                By proceeding you agree <br> to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+            </div>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div id="login-screen" class="login-form-container">
+            <button class="back-btn" onclick="hideLogin()">&#8592;</button>
+            <div class="text-content" style="text-align: left; margin-bottom: 30px;">
+                <h1 style="font-size: 28px;">Sign In</h1>
+                <p>Enter your credentials to continue</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="login-username" placeholder="Enter username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="login-password" placeholder="Enter password" required>
+                        <div class="eye-icon" onclick="togglePassword('login-password', this)">
+                            <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-white submit-btn" id="loginBtn">Sign In</button>
+                <p style="text-align:center; margin-top:15px; font-size:14px; color:#888;">Do not have an account? <a href="#" onclick="showRegister()" style="color:#fff; text-decoration:underline;">Register</a></p>
+            </form>
+        </div>
+
+        <!-- REGISTER FORM -->
+        <div id="register-screen" class="login-form-container">
+            <button class="back-btn" onclick="hideRegister()">&#8592;</button>
+            <div class="text-content" style="text-align: left; margin-bottom: 30px;">
+                <h1 style="font-size: 28px;">Register</h1>
+                <p>Create an account with your referral code</p>
+            </div>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="reg-username" placeholder="Choose a username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="reg-password" placeholder="Create a password" required>
+                        <div class="eye-icon" onclick="togglePassword('reg-password', this)">
+                            <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Referral Code (Waajib)</label>
+                    <input type="text" id="reg-referral" placeholder="Enter your special code" required>
+                </div>
+                <button type="submit" class="btn btn-white submit-btn" id="regBtn">Sign Up</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 1. Navigation
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const loginScreen = document.getElementById('login-screen');
+        const registerScreen = document.getElementById('register-screen');
+
+        function showLogin() {
+            welcomeScreen.style.display = 'none';
+            loginScreen.classList.add('active');
+        }
+        function hideLogin() {
+            loginScreen.classList.remove('active');
+            setTimeout(() => { welcomeScreen.style.display = 'block'; }, 300);
+        }
+        function showRegister() {
+            loginScreen.classList.remove('active');
+            setTimeout(() => { registerScreen.classList.add('active'); }, 300);
+        }
+        function hideRegister() {
+            registerScreen.classList.remove('active');
+            setTimeout(() => { loginScreen.classList.add('active'); }, 300);
+        }
+
+        // 2. Password Toggle
+        function togglePassword(inputId, iconElement) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                iconElement.style.color = "#fff";
+            } else {
+                input.type = "password";
+                iconElement.style.color = "#888";
+            }
+        }
+
+        // 3. Nidaamka Register-ka
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value;
+            const password = document.getElementById('reg-password').value;
+            const referral = document.getElementById('reg-referral').value;
+            const btn = document.getElementById('regBtn');
+
+            if (referral !== "ABDI-VIP-2024") {
+                btn.innerText = "Invalid Referral Code!";
+                btn.style.background = "#da3633";
+                btn.style.color = "#fff";
+                setTimeout(() => { btn.innerText = "Sign Up"; btn.style.background = "#fff"; btn.style.color = "#000"; }, 2000);
+                return;
+            }
+
+            if (localStorage.getItem('user_' + username)) {
+                btn.innerText = "Username exists!";
+                btn.style.background = "#da3633";
+                btn.style.color = "#fff";
+                setTimeout(() => { btn.innerText = "Sign Up"; btn.style.background = "#fff"; btn.style.color = "#000"; }, 2000);
+                return;
+            }
+
+            btn.innerText = "Creating...";
+            setTimeout(() => {
+                localStorage.setItem('user_' + username, password);
+                btn.innerText = "Account Created!";
+                btn.style.background = "#238636";
+                btn.style.color = "#fff";
+                setTimeout(() => {
+                    hideRegister();
+                    document.getElementById('login-username').value = username;
+                    btn.innerText = "Sign Up"; btn.style.background = "#fff"; btn.style.color = "#000";
+                }, 1500);
+            }, 800);
+        });
+
+        // 4. Nidaamka Login-ka (Halkan ayaa qaladka hore ka jiray)
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('loginBtn');
+
+            btn.innerText = "Checking...";
+            btn.style.opacity = '0.7';
+
+            setTimeout(() => {
+                const storedPassword = localStorage.getItem('user_' + username);
+                
+                if (storedPassword && storedPassword === password) {
+                    btn.innerText = "Success!";
+                    btn.style.background = "#238636";
+                    btn.style.color = "#fff";
+                    btn.style.opacity = '1';
+                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+                } else {
+                    btn.innerText = "Invalid Credentials!";
+                    btn.style.background = "#da3633";
+                    btn.style.color = "#fff";
+                    btn.style.opacity = '1';
+                    setTimeout(() => { btn.innerText = "Sign In"; btn.style.background = "#fff"; btn.style.color = "#000"; }, 2000);
+                }
+            }, 800);
+        });
+    </script>
+</body>
+</html>
+"""
+
+with open('index.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
+
+print("✅ Nidaamka rasmiga ah ee Login & Register waa la dhisay!")
