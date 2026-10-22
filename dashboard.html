@@ -66,6 +66,6 @@ function go(k){const n=NAV.find(x=>x[0]===k)||NAV[0];
 document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.id==="v-"+n[0]));
 document.querySelectorAll(".nb").forEach(b=>b.classList.toggle("on",b.dataset.k===n[0]));
 $("ttl").textContent=n[1];$("sub").textContent=n[2];if(location.hash!=="#"+n[0])history.replaceState(null,"","#"+n[0]);scrollTo(0,0)}
-function logout(){localStorage.removeItem("abdi_cur");location.href="index.html"}
+function logout(){["abdi_cur","abdi_tok","abdi_ref"].forEach(k=>localStorage.removeItem(k));location.href="index.html"}
 go(location.hash.slice(1));
 </script></body></html>

@@ -70,18 +70,30 @@ setTimeout(()=>{b.textContent=o;b.className="btn primary";cb&&cb()},ms)}
 async function sha(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));
 return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
 function users(){try{return JSON.parse(localStorage.getItem("abdi_users")||"{}")}catch(e){return{}}}
+const SB="https://qnbiqgntqhzromwnmyth.supabase.co",KEY="sb_publishable_-jVYtd4Psza1wjuBe8g3CQ_kjxRB4lL";
+const em=u=>u+"@abdi-app.com";
+async function sbPost(path,body){
+const r=await fetch(SB+path,{method:"POST",headers:{"apikey":KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
+let j={};try{j=await r.json()}catch(e){}return{ok:r.ok,j:j}}
 async function login(){
-const u=$("lu").value.trim().toLowerCase(),p=$("lp").value,all=users();
-if(u&&all[u]&&all[u]===await sha(p)){localStorage.setItem("abdi_cur",u);flash($("lb"),"Welcome!","ok",700,enter)}
+const u=$("lu").value.trim().toLowerCase(),p=$("lp").value;
+if(!u||!p)return flash($("lb"),"Invalid Credentials!","bad",1600);
+try{const r=await sbPost("/auth/v1/token?grant_type=password",{email:em(u),password:p});
+if(r.ok&&r.j.access_token){
+localStorage.setItem("abdi_tok",r.j.access_token);localStorage.setItem("abdi_ref",r.j.refresh_token||"");localStorage.setItem("abdi_cur",u);
+flash($("lb"),"Welcome!","ok",700,enter)}
 else flash($("lb"),"Invalid Credentials!","bad",1600)}
+catch(e){flash($("lb"),"Network error","bad",1600)}}
 async function register(){
-const u=$("ru").value.trim().toLowerCase(),p=$("rp").value,c=$("rc").value.trim().toUpperCase(),all=users();
-if(u.length<3)return flash($("rb"),"Username gaaban!","bad",1600);
+const u=$("ru").value.trim().toLowerCase(),p=$("rp").value,c=$("rc").value.trim().toUpperCase();
+if(!/^[a-z0-9._-]{3,20}$/.test(u))return flash($("rb"),"Username: 3-20 xaraf (a-z, 0-9)","bad",2000);
 if(p.length<6)return flash($("rb"),"Password gaaban (6+)","bad",1600);
-if(!CODES.includes(c))return flash($("rb"),"Referral Code khalad!","bad",1600);
-if(all[u])return flash($("rb"),"Username hore ayuu u jiray","bad",1600);
-all[u]=await sha(p);localStorage.setItem("abdi_users",JSON.stringify(all));
-flash($("rb"),"Account Created!","ok",1200,()=>{$("lu").value=u;show("signin")})}
+if(!c)return flash($("rb"),"Referral Code waajib","bad",1600);
+try{const r=await sbPost("/auth/v1/signup",{email:em(u),password:p,data:{username:u,referral_code:c}});
+if(r.ok){flash($("rb"),"Account Created!","ok",1200,()=>{$("lu").value=u;show("signin")})}
+else{const m=String(r.j.msg||r.j.message||r.j.error_description||"");
+flash($("rb"),/already|registered|exists/i.test(m)?"Username hore ayuu u jiray":"Referral Code khalad ama Username la qaatay","bad",2200)}}
+catch(e){flash($("rb"),"Network error","bad",1600)}}
 function enter(){location.href="dashboard.html"}
 function logout(){localStorage.removeItem("abdi_cur");show("welcome")}
 
@@ -98,5 +110,5 @@ cx.globalAlpha=.35+.55*Math.abs(Math.sin(t/1100+p.ph));cx.fillStyle="#fff";
 cx.beginPath();cx.arc(p.x,p.y,p.r,0,6.283);cx.fill()}}
 requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
-localStorage.getItem("abdi_cur")?enter():show("welcome");
+localStorage.getItem("abdi_tok")&&localStorage.getItem("abdi_cur")?enter():show("welcome");
 </script></body></html>
