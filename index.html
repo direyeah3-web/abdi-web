@@ -493,6 +493,10 @@
                 btn.innerText = "Account Created!";
                 btn.style.background = "#238636";
                 btn.style.color = "#fff";
+                setTimeout(() => {
+                    hideRegister();
+                    document.getElementById('username').value = document.getElementById('reg-username').value;
+                }, 1500);
             }, 1500);
         });
 
