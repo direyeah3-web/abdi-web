@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Cache Control-ka ayaa lagu qasbay in uu cusboonaysiiyo -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -85,9 +84,28 @@
             width: 100%; padding: 15px; border-radius: 12px; border: none;
             background: linear-gradient(90deg, #1f6feb, #388bfd); color: #fff; font-weight: bold; cursor: pointer; font-size: 16px;
         }
+
+        /* TOAST NOTIFICATION (Qaabka Sawirkaaga 3aad) */
+        .toast-container {
+            position: fixed; top: 20px; right: 20px; z-index: 2000;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .toast {
+            background: #111; border: 1px solid #2c2c2e; color: #fff;
+            padding: 15px 20px; border-radius: 12px; display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.3s ease forwards;
+            font-size: 14px;
+        }
+        .toast.success { border-left: 4px solid #238636; }
+        .toast.error { border-left: 4px solid #da3633; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
     </style>
 </head>
 <body>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
 
     <div class="sidebar">
         <div>
@@ -183,6 +201,22 @@
     </div>
 
     <script>
+        // ===== 1. TOAST FUNCTION =====
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? '✅' : '❌';
+            toast.innerHTML = `<span>${icon}</span> ${message}`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ===== 2. NAVIGATION =====
         function switchTab(tabName, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
@@ -193,6 +227,7 @@
             if (tabName === 'licenses') loadLicenses();
         }
 
+        // ===== 3. MODAL =====
         let selectedDuration = '1 Day';
         function openModal() { document.getElementById('licenseModal').classList.add('active'); }
         function closeModal() { document.getElementById('licenseModal').classList.remove('active'); }
@@ -202,6 +237,7 @@
             selectedDuration = duration;
         }
 
+        // ===== 4. KEY MANAGEMENT =====
         function generateKeys() {
             const qty = parseInt(document.getElementById('key-quantity').value);
             let keys = JSON.parse(localStorage.getItem('abdi_keys')) || [];
@@ -217,6 +253,7 @@
             localStorage.setItem('abdi_keys', JSON.stringify(keys));
             closeModal();
             loadLicenses();
+            showToast(`${qty} Key(s) generated successfully!`, 'success'); // Toast halkan
         }
 
         function loadLicenses() {
@@ -242,13 +279,18 @@
             });
         }
 
-        function copyKey(key) { navigator.clipboard.writeText(key); alert('Copied: ' + key); }
+        function copyKey(key) { 
+            navigator.clipboard.writeText(key); 
+            showToast('Key copied: ' + key, 'success'); // Toast halkan
+        }
+
         function deleteKey(id) {
             if (confirm('Delete this key?')) {
                 let keys = JSON.parse(localStorage.getItem('abdi_keys')) || [];
                 keys = keys.filter(k => k.id !== id);
                 localStorage.setItem('abdi_keys', JSON.stringify(keys));
                 loadLicenses();
+                showToast('Key deleted.', 'error'); // Toast halkan
             }
         }
         window.onload = function() { if (document.getElementById('tab-licenses').classList.contains('active')) loadLicenses(); }
