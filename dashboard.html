@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Abdi VIP | Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -43,17 +46,8 @@
         .stat-card h3 { font-size: 36px; margin-bottom: 5px; color: #fff; }
         .stat-card p { font-size: 14px; color: #888; }
 
-        /* Actions & Tables */
-        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #fff; }
-        .actions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .action-btn {
-            background-color: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 20px;
-            border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 15px; font-weight: 500; transition: all 0.3s ease;
-        }
-        .action-btn:hover { background-color: #2c2c2e; transform: translateY(-2px); }
-        
         /* License Table */
-        .table-container { background: #0a0a0a; border: 1px solid #1c1c1e; border-radius: 15px; overflow: hidden; }
+        .table-container { background: #0a0a0a; border: 1px solid #1c1c1e; border-radius: 15px; overflow: hidden; margin-top: 20px;}
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th { padding: 15px 20px; color: #888; font-size: 13px; border-bottom: 1px solid #1c1c1e; background: #111; }
         td { padding: 15px 20px; font-size: 14px; border-bottom: 1px solid #1c1c1e; }
@@ -63,7 +57,14 @@
         .icon-btn { background: #1c1c1e; border: none; color: #fff; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; margin-right: 5px; }
         .icon-btn:hover { background: #333; }
 
-        /* Modal (Qaabka Sawirkaaga 2aad) */
+        /* Generate Button */
+        .gen-btn {
+            background: linear-gradient(90deg, #1f6feb, #388bfd); color: #fff;
+            border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.3s;
+        }
+        .gen-btn:hover { opacity: 0.9; }
+
+        /* Modal */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);
             display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px);
@@ -77,13 +78,13 @@
         .duration-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .dur-btn {
             background: #1c1c1e; border: 1px solid #333; color: #aaa; padding: 10px; border-radius: 10px;
-            cursor: pointer; font-weight: 500; transition: 0.2s;
+            cursor: pointer; font-weight: 500; transition: 0.2s; font-size: 12px;
         }
         .dur-btn.active { background: #fff; color: #000; }
         .input-group { margin-bottom: 20px; text-align: left; }
         .input-group label { display: block; color: #888; font-size: 12px; margin-bottom: 5px; }
         .input-group input { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 10px; }
-        .generate-btn {
+        .modal-gen-btn {
             width: 100%; padding: 15px; border-radius: 12px; border: none;
             background: linear-gradient(90deg, #1f6feb, #388bfd); color: #fff; font-weight: bold; cursor: pointer; font-size: 16px;
         }
@@ -124,7 +125,6 @@
             <button class="logout-btn" onclick="window.location.href='index.html'">Logout</button>
         </div>
 
-        <!-- TAB 1: DASHBOARD -->
         <div id="tab-dashboard" class="tab-content active">
             <div class="stats-grid">
                 <div class="stat-card"><h3>1</h3><p>Total Users</p></div>
@@ -134,11 +134,10 @@
             </div>
         </div>
 
-        <!-- TAB 2: LICENSES (Kan ayaa hadda shaqeynaya) -->
         <div id="tab-licenses" class="tab-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 class="section-title" style="margin: 0;">Licenses Management</h2>
-                <button class="generate-btn" style="width: auto; padding: 10px 20px;" onclick="openModal()">+ Generate License</button>
+                <h2 style="font-size: 20px;">Licenses Management</h2>
+                <button class="gen-btn" onclick="openModal()">+ Generate License</button>
             </div>
             
             <div class="table-container">
@@ -158,18 +157,14 @@
             </div>
         </div>
 
-        <!-- TAB 3: USERS (Placeholder) -->
-        <div id="tab-users" class="tab-content"><h2 class="section-title">Users</h2><p style="color:#888;">Coming soon...</p></div>
-        
-        <!-- TAB 4: SETTINGS (Placeholder) -->
-        <div id="tab-settings" class="tab-content"><h2 class="section-title">Settings</h2><p style="color:#888;">Coming soon...</p></div>
+        <div id="tab-users" class="tab-content"><h2>Users</h2><p style="color:#888;">Coming soon...</p></div>
+        <div id="tab-settings" class="tab-content"><h2>Settings</h2><p style="color:#888;">Coming soon...</p></div>
     </div>
 
-    <!-- MODAL-KA GENERATE LICENSE -->
+    <!-- MODAL -->
     <div class="modal-overlay" id="licenseModal">
         <div class="modal">
             <h3>🔑 Generate License</h3>
-            
             <div class="input-group" style="text-align: left;">
                 <label>DURATION</label>
                 <div class="duration-grid">
@@ -181,82 +176,60 @@
                     <button class="dur-btn" onclick="selectDuration(this, 'Custom')">Custom</button>
                 </div>
             </div>
-
             <div class="input-group">
                 <label>QUANTITY</label>
                 <input type="number" id="key-quantity" value="1" min="1" max="10">
             </div>
-
-            <button class="generate-btn" onclick="generateKeys()">⚡ GENERATE NOW</button>
+            <button class="modal-gen-btn" onclick="generateKeys()">⚡ GENERATE NOW</button>
             <button style="background: transparent; border: none; color: #888; margin-top: 15px; cursor: pointer;" onclick="closeModal()">Cancel</button>
         </div>
     </div>
 
     <script>
-        // ====== 1. NIDAAMKA TAB-KA ======
         function switchTab(tabName, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            
             document.getElementById('tab-' + tabName).classList.add('active');
             element.classList.add('active');
-            
             const titles = { 'dashboard': 'Dashboard', 'users': 'Users', 'licenses': 'Licenses', 'settings': 'Settings' };
             document.getElementById('page-title').innerText = titles[tabName];
-            
-            if (tabName === 'licenses') {
-                loadLicenses();
-            }
+            if (tabName === 'licenses') loadLicenses();
         }
 
-        // ====== 2. MODAL LOGIC ======
-        let selectedDuration = '1 Day'; // Default
-
+        let selectedDuration = '1 Day';
         function openModal() { document.getElementById('licenseModal').classList.add('active'); }
         function closeModal() { document.getElementById('licenseModal').classList.remove('active'); }
-
         function selectDuration(btn, duration) {
             document.querySelectorAll('.dur-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             selectedDuration = duration;
         }
 
-        // ====== 3. ABUURISTA KEY-YADA ======
         function generateKeys() {
             const qty = parseInt(document.getElementById('key-quantity').value);
-            if (qty < 1 || qty > 10) { alert("Quantity must be between 1 and 10"); return; }
-
             let keys = JSON.parse(localStorage.getItem('abdi_keys')) || [];
-
             for (let i = 0; i < qty; i++) {
-                // Samee key random ah (Tusaale: ABDI-VIP-8X9Y2Z)
                 const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
-                const newKey = {
+                keys.push({
                     id: Date.now() + i,
                     key: `ABDI-VIP-${randomStr}`,
                     duration: selectedDuration,
-                    status: 'unused',
-                    date: new Date().toISOString()
-                };
-                keys.push(newKey);
+                    status: 'unused'
+                });
             }
-
             localStorage.setItem('abdi_keys', JSON.stringify(keys));
             closeModal();
             loadLicenses();
         }
 
-        // ====== 4. SOO BANDHIGA KEY-YADA ======
         function loadLicenses() {
             const keys = JSON.parse(localStorage.getItem('abdi_keys')) || [];
             const tbody = document.getElementById('license-list');
             tbody.innerHTML = '';
-
             if (keys.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #888; padding: 30px;">No licenses generated yet.</td></tr>';
                 return;
             }
-
             keys.reverse().forEach(k => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -264,35 +237,24 @@
                     <td>${k.duration}</td>
                     <td><span class="badge badge-${k.status}">${k.status}</span></td>
                     <td>
-                        <button class="icon-btn" onclick="copyKey('${k.key}')" title="Copy">📋</button>
-                        <button class="icon-btn" onclick="deleteKey(${k.id})" title="Delete" style="color: #ff4d4d;">🗑️</button>
+                        <button class="icon-btn" onclick="copyKey('${k.key}')">📋</button>
+                        <button class="icon-btn" onclick="deleteKey(${k.id})" style="color: #ff4d4d;">🗑️</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // ====== 5. FUNCTIONS KALE ======
-        function copyKey(key) {
-            navigator.clipboard.writeText(key);
-            alert('Key copied: ' + key);
-        }
-
+        function copyKey(key) { navigator.clipboard.writeText(key); alert('Copied: ' + key); }
         function deleteKey(id) {
-            if (confirm('Are you sure you want to delete this key?')) {
+            if (confirm('Delete this key?')) {
                 let keys = JSON.parse(localStorage.getItem('abdi_keys')) || [];
                 keys = keys.filter(k => k.id !== id);
                 localStorage.setItem('abdi_keys', JSON.stringify(keys));
                 loadLicenses();
             }
         }
-
-        // Marka boggu furmo, soo bandhig key-yada haddii ay jiraan
-        window.onload = function() {
-            if (document.getElementById('tab-licenses').classList.contains('active')) {
-                loadLicenses();
-            }
-        }
+        window.onload = function() { if (document.getElementById('tab-licenses').classList.contains('active')) loadLicenses(); }
     </script>
 </body>
 </html>
