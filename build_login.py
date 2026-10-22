@@ -1,0 +1,109 @@
+import shutil
+shutil.copy("index.html", "index.html.before_new")
+
+HTML = r'''<!DOCTYPE html>
+<html lang="so"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Abdi</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#000;color:#fff;font-family:Inter,system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+.screen{display:none;min-height:100vh;padding:28px 22px;flex-direction:column;opacity:0}
+.screen.on{display:flex;animation:in .5s ease forwards}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+#welcome{align-items:center;text-align:center;justify-content:center}
+.ic{width:46px;height:46px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.35)}50%{box-shadow:0 0 0 14px rgba(255,255,255,0)}}
+canvas{width:300px;height:300px;margin-top:-6px}
+h1{font-size:46px;margin:6px 0 8px;letter-spacing:-1px}
+.sub{color:#777;font-size:18px;margin:0 0 34px}
+.btn{width:100%;height:56px;border:0;border-radius:30px;font-size:18px;font-weight:600;cursor:pointer;transition:background .3s,transform .15s}
+.btn:active{transform:scale(.97)}
+.primary{background:#fff;color:#000}.dark{background:#1c1c1e;color:#fff;margin-top:14px}
+.ok{background:#238636;color:#fff}.bad{background:#da3633;color:#fff}
+.wrap{width:100%;max-width:420px}
+.back{background:none;border:0;color:#fff;font-size:30px;align-self:flex-start;padding:0;cursor:pointer}
+.form{margin-top:auto;margin-bottom:60px;width:100%;max-width:420px;align-self:center}
+.form h2{font-size:34px;margin:0 0 6px}.form p{color:#777;margin:0 0 26px}
+label{display:block;color:#888;font-size:14px;margin:0 0 8px 14px}
+.f{position:relative;margin-bottom:18px}
+input{width:100%;height:56px;border-radius:28px;border:1px solid #2a2a2c;background:#1c1c1e;color:#fff;padding:0 52px 0 22px;font-size:17px;outline:0;transition:border .2s}
+input:focus{border-color:#fff}
+.eye{position:absolute;right:14px;bottom:12px;background:none;border:0;color:#aaa;font-size:20px;cursor:pointer}
+.alt{text-align:center;color:#888;margin-top:18px}.alt a{color:#fff;text-decoration:underline;cursor:pointer}
+</style></head><body>
+
+<div class="screen" id="welcome"><div class="wrap">
+<div class="ic" style="margin:0 auto"><svg width="24" height="24" viewBox="0 0 24 24" fill="#000"><circle cx="12" cy="9" r="4"/><path d="M4 21c1-4.5 4.5-6 8-6s7 1.5 8 6z"/></svg></div>
+<canvas id="cv"></canvas>
+<h1>Welcome</h1><p class="sub">Your journey starts from here</p>
+<button class="btn primary" onclick="show('signin')">Horay u soco</button>
+<button class="btn dark" onclick="show('register')">Isdiwaangeli</button>
+</div></div>
+
+<div class="screen" id="signin">
+<button class="back" onclick="show('welcome')">&larr;</button>
+<div class="form"><h2>Sign In</h2><p>Enter your credentials to continue</p>
+<div class="f"><label>Username</label><input id="lu" autocomplete="username"></div>
+<div class="f"><label>Password</label><input id="lp" type="password" autocomplete="current-password"><button class="eye" onclick="eye('lp')">&#128065;</button></div>
+<button class="btn primary" id="lb" onclick="login()">Sign In</button>
+<div class="alt">Do not have an account? <a onclick="show('register')">Register</a></div></div></div>
+
+<div class="screen" id="register">
+<button class="back" onclick="show('welcome')">&larr;</button>
+<div class="form"><h2>Register</h2><p>Create an account with your referral code</p>
+<div class="f"><label>Username</label><input id="ru" autocomplete="username"></div>
+<div class="f"><label>Password</label><input id="rp" type="password" autocomplete="new-password"><button class="eye" onclick="eye('rp')">&#128065;</button></div>
+<div class="f"><label>Referral Code (Waajib)</label><input id="rc" autocapitalize="characters"></div>
+<button class="btn primary" id="rb" onclick="register()">Register</button>
+<div class="alt">Already have an account? <a onclick="show('signin')">Sign In</a></div></div></div>
+
+<div class="screen" id="home" style="align-items:center;justify-content:center;text-align:center">
+<h1 id="hn">Soo dhawoow</h1><p class="sub">Waad gashay si guul leh</p>
+<button class="btn dark" style="max-width:260px" onclick="logout()">Logout</button></div>
+
+<script>
+// Referral codes-ka saxda ah (ku dar kuwa aad rabto halkan)
+const CODES=["ABDI-VIP-2024"];
+const $=i=>document.getElementById(i);
+function show(n){document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===n))}
+function eye(i){const e=$(i);e.type=e.type==="password"?"text":"password"}
+function flash(b,t,c,ms,cb){const o=b.dataset.t||b.textContent;b.dataset.t=o;b.textContent=t;b.className="btn "+c;
+setTimeout(()=>{b.textContent=o;b.className="btn primary";cb&&cb()},ms)}
+async function sha(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));
+return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+function users(){try{return JSON.parse(localStorage.getItem("abdi_users")||"{}")}catch(e){return{}}}
+async function login(){
+const u=$("lu").value.trim().toLowerCase(),p=$("lp").value,all=users();
+if(u&&all[u]&&all[u]===await sha(p)){localStorage.setItem("abdi_cur",u);flash($("lb"),"Welcome!","ok",700,enter)}
+else flash($("lb"),"Invalid Credentials!","bad",1600)}
+async function register(){
+const u=$("ru").value.trim().toLowerCase(),p=$("rp").value,c=$("rc").value.trim().toUpperCase(),all=users();
+if(u.length<3)return flash($("rb"),"Username gaaban!","bad",1600);
+if(p.length<6)return flash($("rb"),"Password gaaban (6+)","bad",1600);
+if(!CODES.includes(c))return flash($("rb"),"Referral Code khalad!","bad",1600);
+if(all[u])return flash($("rb"),"Username hore ayuu u jiray","bad",1600);
+all[u]=await sha(p);localStorage.setItem("abdi_users",JSON.stringify(all));
+flash($("rb"),"Account Created!","ok",1200,()=>{$("lu").value=u;show("signin")})}
+function enter(){$("hn").textContent="Soo dhawoow, "+localStorage.getItem("abdi_cur");show("home")}
+function logout(){localStorage.removeItem("abdi_cur");show("welcome")}
+
+// Dhibcaha jilicsan ee Welcome
+const cv=$("cv"),cx=cv.getContext("2d"),W=300,H=300,d=window.devicePixelRatio||1;
+cv.width=W*d;cv.height=H*d;cx.scale(d,d);
+const ps=Array.from({length:44},()=>({x:Math.random()*W,y:Math.random()*H,r:1+Math.random()*3,
+vx:(Math.random()-.5)*.25,vy:-.12-Math.random()*.3,ph:Math.random()*6.28}));
+function loop(t){
+if($("welcome").classList.contains("on")){cx.clearRect(0,0,W,H);
+for(const p of ps){p.x+=p.vx+Math.sin(t/900+p.ph)*.15;p.y+=p.vy;
+if(p.y<-5){p.y=H+5;p.x=Math.random()*W}
+cx.globalAlpha=.35+.55*Math.abs(Math.sin(t/1100+p.ph));cx.fillStyle="#fff";
+cx.beginPath();cx.arc(p.x,p.y,p.r,0,6.283);cx.fill()}}
+requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+localStorage.getItem("abdi_cur")?enter():show("welcome");
+</script></body></html>'''
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(HTML)
+print("✅ Welcome + Sign In + Register waa la sameeyay")
