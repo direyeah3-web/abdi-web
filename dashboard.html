@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: #000000; color: #ffffff; display: flex; height: 100vh; overflow: hidden; }
+        body { background-color: #000000; color: #ffffff; display: flex; min-height: 100vh; overflow-y: auto !important; overflow-x: hidden; }
 
         /* ===== SIDEBAR (SVG) ===== */
         .sidebar {
@@ -70,7 +70,7 @@
         .main-content {
             flex: 1;
             padding: 40px;
-            overflow-y: auto;
+            overflow-y: auto !important;
             position: relative;
         }
 
