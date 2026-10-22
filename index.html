@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Abdi Web | Welcome</title>
+    <title>Abdi Web | Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -55,7 +55,7 @@
 <body>
 
     <div class="app-container">
-        <!-- QAYBTA WELCOME-KA (SIDII HORE) -->
+        <!-- WELCOME SCREEN -->
         <div id="welcome-screen" class="fade-in-up">
             <div class="top-bar">
                 <div class="profile-icon">
@@ -85,7 +85,7 @@
             </div>
         </div>
 
-        <!-- QAYBTA LOGIN-KA -->
+        <!-- LOGIN FORM -->
         <div id="login-screen" class="login-form-container">
             <button class="back-btn" onclick="hideLogin()">&#8592;</button>
             <div class="text-content" style="text-align: left; margin-bottom: 30px;">
@@ -111,7 +111,7 @@
             </form>
         </div>
 
-        <!-- QAYBTA REGISTER-KA -->
+        <!-- REGISTER FORM -->
         <div id="register-screen" class="login-form-container">
             <button class="back-btn" onclick="hideRegister()">&#8592;</button>
             <div class="text-content" style="text-align: left; margin-bottom: 30px;">
@@ -142,43 +142,58 @@
     </div>
 
     <script>
-
-
-        
-        // Animation Dots (Sawirkaaga)
-        const dotsContainer = document.getElementById('dots');
-        if (dotsContainer) {
-            for (let i = 0; i < 40; i++) {
-                let dot = document.createElement('div');
-                dot.classList.add('dot');
-                dot.style.width = Math.random() * 4 + 2 + 'px';
-                dot.style.height = dot.style.width;
-                dot.style.left = Math.random() * 100 + '%';
-                dot.style.top = Math.random() * 100 + '%';
-                dot.style.animationDelay = Math.random() * 2 + 's';
-                dotsContainer.appendChild(dot);
-            }
-        }
-
-        // Navigation
+        // 1. Navigation Functions (Badhannada)
         const welcomeScreen = document.getElementById('welcome-screen');
         const loginScreen = document.getElementById('login-screen');
         const registerScreen = document.getElementById('register-screen');
 
-        function showLogin() { welcomeScreen.style.display = 'none'; loginScreen.classList.add('active'); }
-        function hideLogin() { loginScreen.classList.remove('active'); setTimeout(() => { welcomeScreen.style.display = 'block'; }, 300); }
-        function showRegister() { loginScreen.classList.remove('active'); setTimeout(() => { registerScreen.classList.add('active'); }, 300); }
-        function hideRegister() { registerScreen.classList.remove('active'); setTimeout(() => { loginScreen.classList.add('active'); }, 300); }
+        function showLogin() {
+            welcomeScreen.style.display = 'none';
+            loginScreen.classList.add('active');
+        }
+        function hideLogin() {
+            loginScreen.classList.remove('active');
+            setTimeout(() => { welcomeScreen.style.display = 'block'; }, 300);
+        }
+        function showRegister() {
+            loginScreen.classList.remove('active');
+            setTimeout(() => { registerScreen.classList.add('active'); }, 300);
+        }
+        function hideRegister() {
+            registerScreen.classList.remove('active');
+            setTimeout(() => { loginScreen.classList.add('active'); }, 300);
+        }
 
+        // 2. Password Toggle
         function togglePassword(inputId, iconElement) {
             const input = document.getElementById(inputId);
             if (input.type === "password") { input.type = "text"; iconElement.style.color = "#fff"; } 
             else { input.type = "password"; iconElement.style.color = "#888"; }
         }
 
-        // ==========================================
-        // NIDAAMKA REGISTER-KA (Wuxuu xogta ku kaydiyaa localStorage)
-        // ==========================================
+        // 3. Animations Dots (Quruxda)
+        const dotsContainer = document.getElementById('dots');
+        if (dotsContainer) {
+            const colors = ['#ffffff', '#a0a0a0', '#505050'];
+            for (let i = 0; i < 50; i++) {
+                let dot = document.createElement('div');
+                dot.classList.add('dot');
+                let size = Math.random() * 5 + 2;
+                dot.style.width = size + 'px';
+                dot.style.height = size + 'px';
+                let angle = Math.random() * Math.PI * 2;
+                let radius = Math.random() * 80;
+                let x = Math.cos(angle) * radius + 100;
+                let y = Math.sin(angle) * radius + 100;
+                dot.style.left = x + 'px';
+                dot.style.top = y + 'px';
+                dot.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                dot.style.animationDelay = (Math.random() * 2) + 's, ' + (Math.random() * 4) + 's';
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        // 4. NIDAAMKA REGISTER-KA
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('reg-username').value.trim();
@@ -186,7 +201,6 @@
             const referral = document.getElementById('reg-referral').value.trim();
             const btn = document.getElementById('regBtn');
 
-            // 1. Hubi Referral Code-ka
             if (referral !== "ABDI-VIP-2024") {
                 btn.innerText = "Invalid Referral Code!";
                 btn.style.background = "#da3633"; btn.style.color = "#fff";
@@ -194,7 +208,6 @@
                 return;
             }
 
-            // 2. Hubi haddii User-ku horey u jiray
             if (localStorage.getItem('user_' + username)) {
                 btn.innerText = "Username already exists!";
                 btn.style.background = "#da3633"; btn.style.color = "#fff";
@@ -203,13 +216,10 @@
             }
 
             btn.innerText = "Creating...";
-            
-            // 3. Kaydi xogta
             setTimeout(() => {
                 localStorage.setItem('user_' + username, password);
                 btn.innerText = "Account Created!";
                 btn.style.background = "#238636"; btn.style.color = "#fff";
-                
                 setTimeout(() => {
                     hideRegister();
                     document.getElementById('login-username').value = username;
@@ -218,9 +228,7 @@
             }, 800);
         });
 
-        // ==========================================
-        // NIDAAMKA LOGIN-KA (Waa inuu ku xirmayaa xogta rasmiga ah)
-        // ==========================================
+        // 5. NIDAAMKA LOGIN-KA
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('login-username').value.trim();
@@ -233,52 +241,18 @@
             setTimeout(() => {
                 const storedPassword = localStorage.getItem('user_' + username);
                 
-                // Haddii uu jiro user-ka oo password-ku sax yahay
                 if (storedPassword && storedPassword === password) {
                     btn.innerText = "Success!";
                     btn.style.background = "#238636"; btn.style.color = "#fff"; btn.style.opacity = '1';
-                    // Kaydi xogta qofka galay si Dashboard-ku u ogaado
-                    localStorage.setItem('currentUser', username); 
+                    localStorage.setItem('currentUser', username);
                     setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
                 } else {
-                    // Haddii uusan jirin ama password-ku khaldan yahay
                     btn.innerText = "Invalid Credentials!";
                     btn.style.background = "#da3633"; btn.style.color = "#fff"; btn.style.opacity = '1';
                     setTimeout(() => { btn.innerText = "Sign In"; btn.style.background = "#fff"; btn.style.color = "#000"; }, 2000);
                 }
             }, 800);
         });
-
-
-        // Animation Dots (Qurux badan)
-        const dotsContainer = document.getElementById('dots');
-        if (dotsContainer) {
-            const colors = ['#ffffff', '#a0a0a0', '#505050']; // Midabyo kala duwan
-            for (let i = 0; i < 50; i++) {
-                let dot = document.createElement('div');
-                dot.classList.add('dot');
-                
-                // Size kala duwan
-                let size = Math.random() * 5 + 2;
-                dot.style.width = size + 'px';
-                dot.style.height = size + 'px';
-                
-                // Meelaha ay ka soo baxaan (Wareeg)
-                let angle = Math.random() * Math.PI * 2;
-                let radius = Math.random() * 80; // 80px gudaha
-                let x = Math.cos(angle) * radius + 100; // 100 waa badhka container-ka
-                let y = Math.sin(angle) * radius + 100;
-                
-                dot.style.left = x + 'px';
-                dot.style.top = y + 'px';
-                dot.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                
-                // Delay kala duwan si ay u soo baxaan si tartiib ah
-                dot.style.animationDelay = (Math.random() * 2) + 's, ' + (Math.random() * 4) + 's';
-                
-                dotsContainer.appendChild(dot);
-            }
-        }
     </script>
 </body>
 </html>
