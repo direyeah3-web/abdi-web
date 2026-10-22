@@ -424,7 +424,11 @@
                     btn.style.background = "#238636"; 
                     btn.style.color = "#fff";
                     // Halkan ayaad ku dari kartaa koodhka aad u gudbeyso Dashboard-ka
-                } else {
+                
+        setTimeout(() => {
+            window.location.href = 'dashboard.html';
+        }, 800);
+        } else {
                     btn.innerText = "Invalid Key";
                     btn.style.background = "#da3633"; 
                     btn.style.color = "#fff";
