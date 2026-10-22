@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1024, initial-scale=0.4">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Abdi VIP | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: #000000; color: #ffffff; display: flex; height: 100vh; overflow: hidden; }
+
+        /* ===== SIDEBAR (Apple UI Style) ===== */
+        .sidebar {
+            width: 260px;
+            background-color: #0a0a0a;
+            border-right: 1px solid #1c1c1e;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 40px;
+        }
+
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .nav-item {
+            padding: 12px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #888;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .nav-item:hover { background-color: #1c1c1e; color: #fff; }
+        .nav-item.active { background-color: #1c1c1e; color: #fff; }
+
+        .user-profile-bottom {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background-color: #1c1c1e;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: #fff; color: #000; display: flex; justify-content: center; align-items: center; font-weight: bold; }
+        .user-info p { font-size: 14px; font-weight: 600; }
+        .user-info span { font-size: 12px; color: #888; }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .header h1 { font-size: 32px; font-weight: 700; letter-spacing: -1px; }
+        .logout-btn { background: #1c1c1e; border: none; color: #fff; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: linear-gradient(145deg, #111, #0a0a0a);
+            border: 1px solid #1c1c1e;
+            padding: 25px;
+            border-radius: 20px;
+        }
+        .stat-card h3 { font-size: 36px; margin-bottom: 5px; }
+        .stat-card p { font-size: 14px; color: #888; }
+
+        /* Quick Actions */
+        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+        .actions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .action-btn {
+            background-color: #1c1c1e;
+            border: 1px solid #2c2c2e;
+            color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .action-btn:hover { background-color: #2c2c2e; transform: translateY(-2px); }
+
+        /* MOBILE NAV WAA LA QARIYAY SI MAR WALBA DESKTOP LOOGU ARKO */
+        .mobile-nav {
+            display: none !important; 
+        }
+
+        /* Haddii shaashaddu aad u yar tahay, sidebar-ka yara yaree laakiin ha qarin */
+        /* Media query-ga waa la joojiyay */
+        /* Media query removed for True Desktop */
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div>
+            <div class="logo-area">
+                <span>👑</span> <span class="text">Abdi VIP</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active"><span>🏠</span> <span class="text">Dashboard</span></li>
+                <li class="nav-item"><span>👥</span> <span class="text">Users</span></li>
+                <li class="nav-item"><span>🔑</span> <span class="text">Licenses</span></li>
+                <li class="nav-item"><span>⚙️</span> <span class="text">Settings</span></li>
+            </ul>
+        </div>
+        
+        <div class="user-profile-bottom">
+            <div class="avatar">A</div>
+            <div class="user-info">
+                <p>Abdi</p>
+                <span>Administrator</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1>Dashboard</h1>
+            <button class="logout-btn" onclick="window.location.href='index.html'">Logout</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>1</h3>
+                <p>Total Users</p>
+            </div>
+            <div class="stat-card">
+                <h3>2</h3>
+                <p>Total Licenses</p>
+            </div>
+            <div class="stat-card">
+                <h3>1</h3>
+                <p>Available Keys</p>
+            </div>
+            <div class="stat-card">
+                <h3>0</h3>
+                <p>Referrals</p>
+            </div>
+        </div>
+
+        <h2 class="section-title">Quick Actions</h2>
+        <div class="actions-grid">
+            <button class="action-btn"><span>🔑</span> Generate License</button>
+            <button class="action-btn"><span>👤</span> Add New User</button>
+            <button class="action-btn"><span>📊</span> View Analytics</button>
+        </div>
+    </div>
+
+    <!-- Mobile Nav waa la tirtiray -->
+</body>
+</html>
