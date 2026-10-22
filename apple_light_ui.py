@@ -1,0 +1,216 @@
+import shutil
+
+# 1. Backup
+try:
+    shutil.copy('index.html', 'index.html.old_backup')
+    print("✅ Backup: index.html.old_backup")
+except:
+    pass
+
+# 2. HTML-ka Cusub (Apple Light Glassmorphism)
+html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABDI VIP | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            --glass-bg: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --text: #1d1d1f;
+            --muted: #86868b;
+            --primary: #0071e3;
+            --green: #34c759;
+            --red: #ff3b30;
+            --yellow: #ffcc00;
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
+        body { 
+            background: var(--bg-gradient); 
+            color: var(--text); 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Sidebar (Glass Light) */
+        .sidebar { 
+            width: 260px; 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            display: flex; 
+            flex-direction: column; 
+            padding: 24px; 
+        }
+        .logo { font-size: 20px; font-weight: 700; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+        .logo i { color: var(--yellow); }
+        .nav-item { 
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px; 
+            border-radius: 14px; color: var(--text); text-decoration: none; 
+            font-weight: 500; margin-bottom: 5px; transition: all 0.3s; cursor: pointer; 
+            background: transparent;
+        }
+        .nav-item:hover, .nav-item.active { 
+            background: rgba(255, 255, 255, 0.8); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .nav-item i { width: 20px; text-align: center; color: var(--muted); }
+
+        /* Main Content */
+        .main { flex: 1; overflow-y: auto; padding: 30px 40px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .header h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; }
+        .btn { padding: 10px 20px; border-radius: 20px; border: none; cursor: pointer; font-weight: 600; transition: all 0.2s; backdrop-filter: blur(10px); }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-secondary { background: rgba(255, 255, 255, 0.6); color: var(--text); border: 1px solid var(--glass-border); }
+
+        /* Grid & Cards */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            border-radius: 24px; 
+            padding: 24px; 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            box-shadow: var(--shadow); 
+            transition: transform 0.3s;
+        }
+        .card:hover { transform: translateY(-5px); }
+        .stat-title { font-size: 14px; color: var(--muted); font-weight: 600; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-value { font-size: 38px; font-weight: 700; margin-bottom: 5px; letter-spacing: -1px; }
+        .stat-change { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .stat-change.positive { color: var(--green); }
+
+        /* Chart Area */
+        .chart-panel { 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            border-radius: 24px; 
+            padding: 24px; 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--shadow);
+        }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .chart-box { height: 300px; display: flex; align-items: flex-end; gap: 12px; padding-top: 20px; }
+        .bar { flex: 1; background: rgba(0, 113, 227, 0.2); border-radius: 8px; transition: height 0.5s ease; }
+        .bar:hover { background: rgba(0, 113, 227, 0.4); }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 10px; align-items: center; border-right: none; border-bottom: 1px solid var(--glass-border); }
+            .logo { margin-bottom: 0; margin-right: 20px; }
+            .nav-item { padding: 10px; margin-bottom: 0; }
+            .main { padding: 20px; }
+            .grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo"><i class="fa-solid fa-star"></i> ABDI VIP</div>
+        <a href="#" class="nav-item active"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-users"></i> Users</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-key"></i> Licenses</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+        <a href="#" class="nav-item" style="margin-top: auto;"><i class="fa-solid fa-gear"></i> Settings</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+        <header class="header">
+            <h1>Dashboard</h1>
+            <button class="btn btn-secondary" onclick="loadData()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        </header>
+
+        <!-- STATS GRID -->
+        <div class="grid">
+            <div class="card">
+                <div class="stat-title">Total Users</div>
+                <div class="stat-value" id="stat-users">...</div>
+                <div class="stat-change positive"><i class="fa-solid fa-arrow-trend-up"></i> Live data</div>
+            </div>
+            <div class="card">
+                <div class="stat-title">Active Licenses</div>
+                <div class="stat-value" id="stat-licenses">...</div>
+                <div class="stat-change positive"><i class="fa-solid fa-check-circle"></i> System Online</div>
+            </div>
+            <div class="card">
+                <div class="stat-title">API Uptime</div>
+                <div class="stat-value">99.9%</div>
+                <div class="stat-change positive"><i class="fa-solid fa-shield"></i> Secure</div>
+            </div>
+            <div class="card">
+                <div class="stat-title">Referrals</div>
+                <div class="stat-value" id="stat-referrals">...</div>
+                <div class="stat-change"><i class="fa-solid fa-users"></i> Tracking</div>
+            </div>
+        </div>
+
+        <!-- CHART -->
+        <div class="chart-panel">
+            <div class="chart-header">
+                <h2 style="font-size: 18px; font-weight: 600;">Analytics Overview</h2>
+            </div>
+            <div class="chart-box" id="chart">
+                <div class="bar" style="height: 40%;"></div>
+                <div class="bar" style="height: 60%;"></div>
+                <div class="bar" style="height: 30%;"></div>
+                <div class="bar" style="height: 80%;"></div>
+                <div class="bar" style="height: 50%;"></div>
+                <div class="bar" style="height: 90%;"></div>
+                <div class="bar" style="height: 70%;"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Xogta dhabta ah (Real Data) laga soo qaato API-ga
+        async function loadData() {
+            try {
+                // Halkaan ku xidh API-gaaga dhabta ah
+                // const res = await fetch('https://abdi-vip-panel-production.up.railway.app/api/stats');
+                // const data = await res.json();
+                
+                // Hadda xogta aan ku tijaabinayno (Badalka xogta dhabta ah)
+                const mockData = {
+                    users: 5,      
+                    licenses: 2,    
+                    referrals: 1    
+                };
+
+                document.getElementById('stat-users').innerText = mockData.users;
+                document.getElementById('stat-licenses').innerText = mockData.licenses;
+                document.getElementById('stat-referrals').innerText = mockData.referrals;
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        // Marka boggu furmo xogta soo qaado
+        loadData();
+    </script>
+</body>
+</html>
+"""
+
+# 3. Qor faylka
+with open('index.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
+
+print("✅ Apple Light Dashboard la abuuray!")
