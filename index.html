@@ -82,7 +82,7 @@ if(!CODES.includes(c))return flash($("rb"),"Referral Code khalad!","bad",1600);
 if(all[u])return flash($("rb"),"Username hore ayuu u jiray","bad",1600);
 all[u]=await sha(p);localStorage.setItem("abdi_users",JSON.stringify(all));
 flash($("rb"),"Account Created!","ok",1200,()=>{$("lu").value=u;show("signin")})}
-function enter(){$("hn").textContent="Soo dhawoow, "+localStorage.getItem("abdi_cur");show("home")}
+function enter(){location.href="dashboard.html"}
 function logout(){localStorage.removeItem("abdi_cur");show("welcome")}
 
 // Dhibcaha jilicsan ee Welcome
