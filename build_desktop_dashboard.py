@@ -1,0 +1,246 @@
+import shutil
+import os
+
+# 1. Kaydi (Backup) haddii faylku horey u jiro
+if os.path.exists('dashboard.html'):
+    shutil.copy('dashboard.html', 'dashboard_backup.html')
+    print("⚠️ Faylka hore waa la kaydiyay (dashboard_backup.html).")
+
+# 2. Qoraalka cusub ee Desktop Dashboard-ka (Apple UI + Liquid Navigation)
+html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abdi VIP | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: #000000; color: #ffffff; display: flex; height: 100vh; overflow: hidden; }
+
+        /* ===== SIDEBAR (Apple UI Style) ===== */
+        .sidebar {
+            width: 280px;
+            background-color: #0a0a0a;
+            border-right: 1px solid #1c1c1e;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 40px;
+        }
+
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .nav-item {
+            padding: 12px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #888;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .nav-item:hover { background-color: #1c1c1e; color: #fff; }
+        .nav-item.active { background-color: #1c1c1e; color: #fff; }
+
+        .user-profile-bottom {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background-color: #1c1c1e;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: #fff; color: #000; display: flex; justify-content: center; align-items: center; font-weight: bold; }
+        .user-info p { font-size: 14px; font-weight: 600; }
+        .user-info span { font-size: 12px; color: #888; }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .header h1 { font-size: 32px; font-weight: 700; letter-spacing: -1px; }
+        .logout-btn { background: #1c1c1e; border: none; color: #fff; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: linear-gradient(145deg, #111, #0a0a0a);
+            border: 1px solid #1c1c1e;
+            padding: 25px;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card h3 { font-size: 36px; margin-bottom: 5px; }
+        .stat-card p { font-size: 14px; color: #888; }
+
+        /* Quick Actions */
+        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+        .actions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .action-btn {
+            background-color: #1c1c1e;
+            border: 1px solid #2c2c2e;
+            color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .action-btn:hover { background-color: #2c2c2e; transform: translateY(-2px); }
+
+        /* ===== LIQUID NAVIGATION (Mobile View Only) ===== */
+        .mobile-nav {
+            display: none; /* Wuxuu soo baxayaa kaliya marka shaashaddu yar tahay */
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            height: 70px;
+            background-color: #1c1c1e;
+            border-radius: 35px;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.5);
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+            border: 1px solid #2c2c2e;
+        }
+
+        .mobile-nav-item {
+            width: 50px; height: 50px;
+            display: flex; justify-content: center; align-items: center;
+            color: #888; font-size: 24px; cursor: pointer;
+            position: relative; transition: all 0.3s;
+        }
+        
+        .mobile-nav-item.active {
+            color: #000;
+            background: #fff;
+            border-radius: 50%;
+            transform: translateY(-15px); /* Animation-ka goobada soo baxda */
+            box-shadow: 0 10px 20px rgba(255,255,255,0.2);
+        }
+
+        /* Responsive: Marka shaashaddu yar tahay (Telefoon) */
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { padding: 20px; padding-bottom: 100px; }
+            .mobile-nav { display: flex; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar (Desktop) -->
+    <div class="sidebar">
+        <div>
+            <div class="logo-area">
+                <span>👑</span> Abdi VIP
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active">🏠 Dashboard</li>
+                <li class="nav-item">👥 Users</li>
+                <li class="nav-item">🔑 Licenses</li>
+                <li class="nav-item">⚙️ Settings</li>
+            </ul>
+        </div>
+        
+        <div class="user-profile-bottom">
+            <div class="avatar">A</div>
+            <div class="user-info">
+                <p>Abdi</p>
+                <span>Administrator</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1>Dashboard</h1>
+            <button class="logout-btn" onclick="window.location.href='index.html'">Logout</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>1</h3>
+                <p>Total Users</p>
+            </div>
+            <div class="stat-card">
+                <h3>2</h3>
+                <p>Total Licenses</p>
+            </div>
+            <div class="stat-card">
+                <h3>1</h3>
+                <p>Available Keys</p>
+            </div>
+            <div class="stat-card">
+                <h3>0</h3>
+                <p>Referrals</p>
+            </div>
+        </div>
+
+        <h2 class="section-title">Quick Actions</h2>
+        <div class="actions-grid">
+            <button class="action-btn">🔑 Generate License</button>
+            <button class="action-btn">👤 Add New User</button>
+            <button class="action-btn">📊 View Analytics</button>
+        </div>
+    </div>
+
+    <!-- Liquid Navigation (Mobile) -->
+    <div class="mobile-nav">
+        <div class="mobile-nav-item active">🏠</div>
+        <div class="mobile-nav-item">👥</div>
+        <div class="mobile-nav-item">🔑</div>
+        <div class="mobile-nav-item">⚙️</div>
+    </div>
+
+    <script>
+        // Animation-ka Liquid Navigation marka la taabto
+        const navItems = document.querySelectorAll('.mobile-nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Ka saar 'active' dhammaan
+                navItems.forEach(nav => nav.classList.remove('active'));
+                // Ku dar kan la taabtay
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
+"""
+
+# 3. Qor faylka cusub
+with open('dashboard.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
+
+print("✅ Dashboard-ka cusub ee Desktop & Liquid Navigation waa la dhisay!")
