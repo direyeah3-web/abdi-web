@@ -232,6 +232,35 @@
             100% { transform: translateY(-10px) scale(1.2); opacity: 1; }
         }
 
+    
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .password-wrapper input {
+            width: 100%;
+            padding-right: 45px; /* Meel bannaan oo icon-ka laga dhigo */
+        }
+        .eye-icon {
+            position: absolute;
+            right: 15px;
+            cursor: pointer;
+            color: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s;
+        }
+        .eye-icon:hover {
+            color: #fff;
+        }
+        .eye-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
     </style>
 </head>
 <body>
@@ -287,7 +316,12 @@
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="password" placeholder="Enter password" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" placeholder="Enter password" required>
+                        <div class="eye-icon" onclick="togglePassword('password', this)">
+                            <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                        </div>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-white submit-btn" id="submitBtn">Sign In</button>
                 <p style="text-align:center; margin-top:15px; font-size:14px; color:#888;">Do not have an account? <a href="#" onclick="showRegister()" style="color:#fff; text-decoration:underline;">Register</a></p>
@@ -311,7 +345,12 @@
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="reg-password" placeholder="Create a password" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="reg-password" placeholder="Create a password" required>
+                        <div class="eye-icon" onclick="togglePassword('reg-password', this)">
+                            <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Referral Code (Waajib)</label>
@@ -456,6 +495,19 @@
                 btn.style.color = "#fff";
             }, 1500);
         });
+
+    
+        // 6. Shaqada Indhaha (Password Toggle)
+        function togglePassword(inputId, iconElement) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                iconElement.style.color = "#fff"; // Indhaha oo iftiimaya
+            } else {
+                input.type = "password";
+                iconElement.style.color = "#888"; // Indhaha oo mugdi noqonaya
+            }
+        }
 
     </script>
 </body>
