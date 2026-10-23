@@ -145,6 +145,8 @@ h1{cursor:pointer}
 .ac-t{font-size:15px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ac-s{font-size:12px;color:#8e8e93;margin-top:2px}
 .ac-e{padding:26px;text-align:center;color:#8e8e93;font-size:14px}
+/*abdi-avatar*/
+.ab-av{background:url(xero.png) center/cover no-repeat #000!important;font-size:0!important;color:transparent!important;border:2px solid rgba(255,255,255,.18)!important;box-shadow:0 0 0 1px rgba(0,0,0,.6)!important;overflow:hidden}
 </style></head><body>
 <aside id="side"><div class="brand">Abdi</div></aside>
 <main>
@@ -727,5 +729,19 @@ setInterval(function(){
   if(typeof loadOverview==="function")loadOverview();
  }catch(e){}
 },15000);
+})();
+
+(function(){
+function fix(){
+ var a=document.querySelectorAll("*");
+ for(var i=0;i<a.length;i++){
+  var e=a[i];
+  if(e.children.length||e.classList.contains("ab-av"))continue;
+  if(e.textContent.trim()!=="A")continue;
+  var r=e.getBoundingClientRect();
+  if(r.width>=24&&r.width<=70&&r.top<260){e.classList.add("ab-av");return}
+ }
+}
+setInterval(fix,800);fix();
 })();
 </script></body></html>
