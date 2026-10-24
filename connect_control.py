@@ -1,98 +1,117 @@
-import shutil
-shutil.copy("dashboard.html", "dashboard.html.before_ctl")
-
-with open("dashboard.html", "r", encoding="utf-8") as f:
-    d = f.read()
-
-END = "</script></body></html>"
-if "loadCtl" in d:
-    print("⚠️ Loader tab hore ayaa loogu daray. Waan joogsaday.")
-    raise SystemExit
-for need in ("function toast", "function ask", "function log", "const esc=", "async function api("):
-    if need not in d:
-        print("❌ Waa la waayay:", need, "- waan joogsaday")
-        raise SystemExit
-if END not in d or '["analytics","Analytics"' not in d:
-    print("❌ dashboard.html qaab lama filayo")
-    raise SystemExit
-
-NAV_NEW = '["control","Loader","Maamul loader-ka online",\'<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>\'],\n'
-d = d.replace('["analytics","Analytics"', NAV_NEW + '["analytics","Analytics"', 1)
-
-CSS = r'''.lb{display:block;color:var(--m);font-size:13px;margin:12px 0}
-.ta{width:100%;margin-top:6px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--t);padding:12px 14px;font:16px -apple-system,Inter,system-ui,sans-serif;outline:0;resize:vertical}
-.ta:focus{border-color:var(--b)}
-.swr{display:flex;justify-content:space-between;align-items:center;gap:12px}
-.sw{position:relative;width:54px;height:32px;border-radius:16px;border:0;background:#39393d;cursor:pointer;transition:.25s;flex:none}
-.sw::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;transition:.25s}
-.sw.on{background:#30d158}.sw.on::after{transform:translateX(22px)}
-</style>'''
-
-JS = r'''
-if($("v-control")){
-const C={cfg:null,ann:[],cr:[]};
-const val=i=>$(i).value.trim();
-const tf=s=>new Date(s).toLocaleString([],{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
-const okUrl=s=>s===""||/^https:\/\/\S+$/.test(s);
-function fail(e){if(!(e&&e.message==="auth"))toast("Khalad: isku day mar kale")}
-async function patchCfg(p){p.updated_at=new Date().toISOString();
-const x=await api("/app_config?id=eq.1",{method:"PATCH",body:JSON.stringify(p)});if(!x.ok)throw 0;Object.assign(C.cfg,p)}
-function renderAnn(){const el=$("c-ann");
-if(!C.ann.length){el.innerHTML='<div class="card empty"><b>Wali fariin ma jirto</b></div>';return}
-el.innerHTML=C.ann.map(a=>'<div class="card kc"><div class="kk" style="font-family:inherit;letter-spacing:0">'+esc(a.title)+'</div>'
-+(a.body?'<div class="km" style="white-space:pre-wrap;font-size:13px">'+esc(a.body)+'</div>':"")
-+'<div class="km"><span class="bd '+(a.active?"active":"inactive")+'">'+(a.active?"live":"hidden")+'</span><span>'+tf(a.created_at)+'</span></div>'
-+'<div class="ka"><button data-a="atoggle" data-id="'+a.id+'">'+(a.active?"Hide":"Show")+'</button><button class="dg" data-a="adel" data-id="'+a.id+'">Delete</button></div></div>').join("")}
-function renderCr(){const el=$("c-cr");
-if(!C.cr.length){el.innerHTML='<div class="card empty"><b>Crash ma jiro</b>Wax khalad ah lama soo sheegin.</div>';return}
-el.innerHTML='<div class="card">'+C.cr.map(r=>'<div class="row"><span>'+esc((r.message||"(no message)").slice(0,140))+'<br><span style="color:var(--m);font-size:12px">v'+esc(r.app_version==null?"?":r.app_version)+" \u00b7 "+esc(String(r.device_id).slice(0,8))+'</span></span><span>'+tf(r.created_at)+'</span></div>').join("")+'</div>'}
-function drawCtl(){const c=C.cfg;
-$("v-control").innerHTML=
-'<div class="card"><div class="swr"><div><h3 style="margin:0">Maintenance</h3><div class="lab">Marka ON, app-ku wuu joogsanayaa</div></div><button class="sw'+(c.maintenance?" on":"")+'" id="c-sw" aria-label="Maintenance"></button></div>'
-+'<label class="lb">Fariinta users-ka<textarea class="ta" id="c-msg" rows="3" maxlength="300">'+esc(c.maintenance_msg)+'</textarea></label>'
-+'<button class="pbtn" id="c-savemsg">Save message</button></div>'
-+'<div class="card sec"><h3 style="margin:0 0 12px">Version &amp; Links</h3><div class="fg">'
-+'<label>Latest version<input id="c-lv" type="number" min="1" value="'+esc(c.latest_version)+'"></label>'
-+'<label>Min version (la khasbayo update)<input id="c-mv" type="number" min="1" value="'+esc(c.min_version)+'"></label>'
-+'<label>Update link (download)<input id="c-url" value="'+esc(c.update_url||"")+'" placeholder="https://..."></label>'
-+'<label>Support link<input id="c-sup" value="'+esc(c.support_url||"")+'" placeholder="https://t.me/..."></label></div>'
-+'<button class="pbtn" id="c-savev">Save</button></div>'
-+'<div class="card sec"><h3 style="margin:0 0 12px">Announcements</h3><div class="fg"><label>Cinwaan<input id="c-at" maxlength="80"></label></div>'
-+'<label class="lb">Qoraal<textarea class="ta" id="c-ab" rows="3" maxlength="500"></textarea></label><button class="pbtn" id="c-post">Post</button></div>'
-+'<div class="sec" id="c-ann"></div>'
-+'<div class="sec"><div class="swr" style="margin-bottom:12px"><h3 style="margin:0">Crash reports</h3><button class="out" id="c-clr">Clear</button></div><div id="c-cr"></div></div>';
-renderAnn();renderCr();
-$("c-sw").onclick=async()=>{const on=!C.cfg.maintenance;
-if(on&&!await ask("Shid maintenance? App-ka users-ka dhammaan wuu joogsanayaa.","Shid"))return;
-try{await patchCfg({maintenance:on,maintenance_msg:val("c-msg")||C.cfg.maintenance_msg});$("c-sw").classList.toggle("on",on);toast(on?"Maintenance ON":"Maintenance OFF");log("Maintenance "+(on?"ON":"OFF"))}catch(e){fail(e)}};
-$("c-savemsg").onclick=async()=>{const m=val("c-msg");if(!m)return toast("Qor fariinta");
-try{await patchCfg({maintenance_msg:m});toast("Fariinta waa la keydiyay")}catch(e){fail(e)}};
-$("c-savev").onclick=async()=>{const lv=+val("c-lv"),mv=+val("c-mv"),url=val("c-url"),sup=val("c-sup");
-if(!(Number.isInteger(lv)&&Number.isInteger(mv)&&lv>=1&&mv>=1))return toast("Version waa inuu noqdaa tiro (1+)");
-if(mv>lv)return toast("Min version ma noqon karo ka weyn Latest");
-if(!okUrl(url)||!okUrl(sup))return toast("Link-ku waa inuu ku bilaabmaa https://");
-try{await patchCfg({latest_version:lv,min_version:mv,update_url:url||null,support_url:sup||null});toast("Waa la keydiyay");log("App version/links la cusboonaysiiyay")}catch(e){fail(e)}};
-$("c-post").onclick=async()=>{const t=val("c-at"),b=val("c-ab");if(!t)return toast("Geli cinwaan");
-try{const x=await api("/announcements",{method:"POST",body:JSON.stringify({title:t,body:b}),headers:{Prefer:"return=representation"}});if(!x.ok)throw 0;
-C.ann=(await x.json()).concat(C.ann);$("c-at").value="";$("c-ab").value="";renderAnn();toast("Waa la dhigay");log("Announcement: "+t)}catch(e){fail(e)}};
-$("c-ann").onclick=async e=>{const b=e.target.closest("button");if(!b)return;const a=C.ann.find(x=>x.id===b.dataset.id);if(!a)return;
-try{
-if(b.dataset.a==="atoggle"){const x=await api("/announcements?id=eq."+a.id,{method:"PATCH",body:JSON.stringify({active:!a.active})});if(!x.ok)throw 0;a.active=!a.active;renderAnn()}
-if(b.dataset.a==="adel"){if(!await ask("Tirtir fariintan?","Delete"))return;const x=await api("/announcements?id=eq."+a.id,{method:"DELETE"});if(!x.ok)throw 0;C.ann=C.ann.filter(y=>y.id!==a.id);renderAnn();toast("Waa la tirtiray")}
-}catch(err){fail(err)}};
-$("c-clr").onclick=async()=>{if(!C.cr.length)return;if(!await ask("Tirtir dhammaan crash reports?","Clear"))return;
-try{const x=await api("/crash_reports?id=gt.0",{method:"DELETE"});if(!x.ok)throw 0;C.cr=[];renderCr();toast("Waa la nadiifiyay")}catch(e){fail(e)}}}
-async function loadCtl(){$("v-control").innerHTML='<div class="card empty">Loading…</div>';
-try{const r=await Promise.all([api("/app_config?select=*&id=eq.1"),api("/announcements?select=*&order=created_at.desc&limit=50"),api("/crash_reports?select=*&order=created_at.desc&limit=30")]);
-if(!r.every(x=>x.ok))throw 0;
-const cf=await r[0].json();if(!cf[0])throw 0;C.cfg=cf[0];C.ann=await r[1].json();C.cr=await r[2].json();drawCtl()}
-catch(e){if(!(e&&e.message==="auth"))$("v-control").innerHTML='<div class="card empty"><b>Khalad</b>Xogta lama soo qaadin.</div>'}}
-loadCtl();
-}
+import shutil,sys
+f='dashboard.html'
+s=open(f,encoding='utf-8').read()
+if 'CONTROL TAB' in s: sys.exit('Hore ayaa loo dhejiyey')
+if '</style>' not in s or '</script>' not in s: sys.exit('Struktur khalad')
+shutil.copy(f,'dashboard.html.before_control')
+css=r'''
+/* ===== CONTROL TAB ===== */
+#ab-cc{display:block}
+#ab-cc .cc-c{background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.035));border:1px solid rgba(255,255,255,.10);border-radius:28px;padding:18px;margin-bottom:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 10px 30px rgba(0,0,0,.5)}
+#ab-cc .cc-t{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:rgba(235,235,245,.5);margin-bottom:12px}
+#ab-cc .cc-top{display:flex;align-items:center;gap:18px}
+#ab-cc .cc-top svg{width:116px;height:116px;flex:none}
+#ab-cc .cc-lg{display:flex;flex-direction:column;gap:9px;font-size:15px;color:#fff}
+#ab-cc .cc-lg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:10px}
+#ab-cc .cc-lg b{float:right;margin-left:18px}
+#ab-cc .cc-g{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;justify-items:center;padding:4px 6px}
+#ab-cc .cc-g i{width:12px;height:12px;border-radius:50%;background:#fff}
+#ab-cc .cc-g i.t{box-shadow:0 0 0 3px rgba(10,132,255,.55)}
+#ab-cc .cc-sg{display:flex;background:rgba(255,255,255,.08);border-radius:999px;padding:4px;margin-bottom:8px}
+#ab-cc .cc-sg button{flex:1;padding:10px;border:none!important;background:none!important;color:rgba(235,235,245,.6)!important;font-size:15px;font-weight:600;border-radius:999px!important}
+#ab-cc .cc-sg button.on{background:rgba(255,255,255,.18)!important;color:#fff!important}
+#ab-cc .cc-r{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 0;border-bottom:.5px solid rgba(255,255,255,.08)}
+#ab-cc .cc-r:last-child{border-bottom:none}
+#ab-cc .cc-k{min-width:0}
+#ab-cc .cc-k b{display:block;font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:15px;color:#fff;letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis}
+#ab-cc .cc-k span{font-size:13px;color:rgba(235,235,245,.5)}
+#ab-cc .cc-x{display:flex;gap:8px;flex:none}
+#ab-cc .cc-x button{padding:9px 14px;border-radius:999px!important;border:none!important;background:#0a84ff!important;color:#fff!important;font-size:14px;font-weight:600}
+#ab-cc .cc-x button.g{background:rgba(255,255,255,.12)!important}
+#ab-cc .cc-em{color:rgba(235,235,245,.45);text-align:center;padding:22px 0;font-size:15px}
+#ab-cc .cc-q{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+#ab-cc .cc-q button{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 6px;border-radius:22px!important;background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.10)!important;color:#fff!important;font-size:13px;font-weight:600}
+#ab-cc .cc-q svg{width:24px;height:24px}
+/* ===== /CONTROL TAB ===== */
 '''
-
-d = d.replace("</style>", CSS, 1)
-d = d.replace(END, JS + END, 1)
-with open("dashboard.html", "w", encoding="utf-8") as f:
-    f.write(d)
-print("✅ Loader tab waa la dhisay")
+js=r'''
+/* ===== CONTROL TAB JS ===== */
+(function(){
+var D=null,lt=0,L="soon",busy=false;
+function T(m){try{toast(m)}catch(e){}}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function EF(){if(!D||!D.length)return null;var k=Object.keys(D[0]);for(var i=0;i<k.length;i++){if(/expir|valid_until|ends/i.test(k[i]))return k[i]}return null}
+function ex(r,f){if(!f||!r[f]||typeof r[f]!=="string")return null;var t=new Date(r[f]).getTime();return isNaN(t)?null:t}
+function act(r){if("is_active" in r)return r.is_active!==false;if(typeof r.status==="string")return /^active$/i.test(r.status);if("active" in r)return r.active!==false;return true}
+function lf(t){var a=document.querySelectorAll("*");for(var i=0;i<a.length;i++){var e=a[i];if(!e.children.length&&e.textContent.trim()===t)return e}return null}
+function view(){var c=document.getElementById("ab-cc");if(c)return c.parentNode;var vs=document.querySelectorAll('[id^="v-"]');for(var i=0;i<vs.length;i++){if(/Maintenance/.test(vs[i].textContent))return vs[i]}return null}
+function rel(e,now){var n=Math.ceil((e-now)/864e5);if(n===0)return "today";if(n>0)return "in "+n+" day"+(n>1?"s":"");return Math.abs(n)+" day"+(Math.abs(n)>1?"s":"")+" ago"}
+var IC={csv:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>',cp:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="3"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>',rf:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>'};
+function render(){
+ var c=document.getElementById("ab-cc");if(!c)return;
+ if(!D){c.innerHTML='<div class="cc-c"><div class="cc-em">Loading...</div></div>';return}
+ var f=EF(),now=Date.now(),live=0,exd=0,off=0,soon=[],gone=[];
+ D.forEach(function(r){var e=ex(r,f),a=act(r);if(e&&e<now){exd++;gone.push([r,e])}else if(!a)off++;else{live++;if(e&&e-now<=7*864e5)soon.push([r,e])}});
+ soon.sort(function(a,b){return a[1]-b[1]});gone.sort(function(a,b){return b[1]-a[1]});
+ var tot=live+exd+off||1,C=2*Math.PI*44,dash=C*live/tot;
+ var ring='<svg viewBox="0 0 110 110"><circle cx="55" cy="55" r="44" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="10"/><circle cx="55" cy="55" r="44" fill="none" stroke="#0a84ff" stroke-width="10" stroke-linecap="round" stroke-dasharray="'+dash+' '+C+'" transform="rotate(-90 55 55)"/><text x="55" y="64" text-anchor="middle" fill="#fff" font-size="28" font-weight="700">'+live+'</text></svg>';
+ var t0=new Date();t0.setHours(0,0,0,0);var st=t0.getTime()-27*864e5,cnt=[],i,mx=1;
+ for(i=0;i<28;i++)cnt.push(0);
+ D.forEach(function(r){if(!r.created_at)return;var d=new Date(r.created_at);d.setHours(0,0,0,0);var k=Math.round((d.getTime()-st)/864e5);if(k>=0&&k<28)cnt[k]++});
+ cnt.forEach(function(v){if(v>mx)mx=v});
+ var dots="";for(i=0;i<28;i++)dots+='<i class="'+(i===27?"t":"")+'" style="opacity:'+(cnt[i]?(0.3+0.7*cnt[i]/mx):0.12)+'"></i>';
+ var list=L==="soon"?soon:gone,lh="";
+ if(!f)lh='<div class="cc-em">Expiry column lama helin</div>';
+ else if(!list.length)lh='<div class="cc-em">'+(L==="soon"?"Wax dhacaya 7 maalmood gudahood ma jiraan":"Key dhacay ma jiro")+'</div>';
+ else list.slice(0,10).forEach(function(p){var r=p[0];if(!r.key)return;lh+='<div class="cc-r"><div class="cc-k"><b>'+esc(r.key)+'</b><span>'+rel(p[1],now)+'</span></div><div class="cc-x"><button data-a="x" data-k="'+esc(r.key)+'" data-d="7" class="g">+7d</button><button data-a="x" data-k="'+esc(r.key)+'" data-d="30">+30d</button></div></div>'});
+ c.innerHTML='<div class="cc-c"><div class="cc-top">'+ring+'<div class="cc-lg"><div><i style="background:#0a84ff"></i>Live<b>'+live+'</b></div><div><i style="background:#ff453a"></i>Expired<b>'+exd+'</b></div><div><i style="background:#8e8e93"></i>Disabled<b>'+off+'</b></div></div></div></div>'+
+ '<div class="cc-c"><div class="cc-t">Keys created, 28 days</div><div class="cc-g">'+dots+'</div></div>'+
+ '<div class="cc-c"><div class="cc-sg"><button data-a="seg" data-v="soon" class="'+(L==="soon"?"on":"")+'">Expiring ('+soon.length+')</button><button data-a="seg" data-v="gone" class="'+(L==="gone"?"on":"")+'">Expired ('+gone.length+')</button></div>'+lh+'</div>'+
+ '<div class="cc-q"><button data-a="csv">'+IC.csv+'Export CSV</button><button data-a="cp">'+IC.cp+'Copy live</button><button data-a="rf">'+IC.rf+'Refresh</button></div>'}
+async function load(){
+ try{var r=await api("/license_keys?select=*&order=created_at.desc&limit=3000");var j=await r.json();if(Array.isArray(j)){D=j;render()}}catch(e){}}
+async function ext(key,days){
+ if(busy)return;var f=EF();if(!f)return;var r=D.filter(function(x){return x.key===key})[0];if(!r)return;
+ busy=true;
+ try{
+  var cur=ex(r,f)||0,nd=new Date(Math.max(Date.now(),cur)+days*864e5);
+  var val=String(r[f]).length===10?nd.toISOString().slice(0,10):nd.toISOString(),b={};b[f]=val;
+  var res=await api("/license_keys?key=eq."+encodeURIComponent(key),{method:"PATCH",headers:{"Content-Type":"application/json","Prefer":"return=minimal"},body:JSON.stringify(b)});
+  if(res.ok){r[f]=val;T("+"+days+" maalmood");render();try{refresh()}catch(e){}}
+  else T("Khalad "+res.status)
+ }catch(e){T("Khalad")}
+ busy=false}
+function csv(){
+ if(!D||!D.length){T("Xog ma jirto");return}
+ var k=Object.keys(D[0]);
+ var q=function(v){v=v==null?"":(typeof v==="object"?JSON.stringify(v):String(v));return '"'+v.replace(/"/g,'""')+'"'};
+ var t=[k.join(",")].concat(D.map(function(r){return k.map(function(x){return q(r[x])}).join(",")})).join("\n");
+ var u=URL.createObjectURL(new Blob([t],{type:"text/csv"})),a=document.createElement("a");
+ a.href=u;a.download="abdi-keys-"+new Date().toISOString().slice(0,10)+".csv";document.body.appendChild(a);a.click();a.remove();T("CSV waa la soo dejiyay")}
+function cp(){
+ if(!D)return;var f=EF(),now=Date.now();
+ var l=D.filter(function(r){var e=ex(r,f);return act(r)&&!(e&&e<now)&&r.key}).map(function(r){return r.key});
+ if(!l.length){T("Key live ah ma jiro");return}
+ try{navigator.clipboard.writeText(l.join("\n")).then(function(){T(l.length+" keys waa la koobiyeeyay")},function(){T("Koobi ma suurtagalin")})}catch(e){T("Koobi ma suurtagalin")}}
+function tick(){
+ var v=view();if(!v)return;
+ var c=document.getElementById("ab-cc");
+ if(!c){c=document.createElement("div");c.id="ab-cc";v.insertBefore(c,v.firstChild);
+  c.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("button");if(!b)return;var a=b.getAttribute("data-a");
+   if(a==="seg"){L=b.getAttribute("data-v");render()}
+   else if(a==="x")ext(b.getAttribute("data-k"),+b.getAttribute("data-d"))
+   else if(a==="csv")csv();else if(a==="cp")cp();else if(a==="rf"){lt=0;T("Refreshing");load()}});
+  render()}
+ v.querySelectorAll(".card,.io-wrap").forEach(function(x){if(!x.closest("#ab-cc"))x.style.display="none"});
+ var h=document.querySelector("h1");if(h&&!h.children.length&&h.textContent.trim()==="Loader")h.textContent="Control";
+ var s=lf("Maamul loader-ka online");if(s)s.textContent="Quick actions and insights";
+ var tb=document.getElementById("tab");if(tb){var a=tb.querySelectorAll("*");for(var i=0;i<a.length;i++){if(!a[i].children.length&&a[i].textContent.trim()==="Loader")a[i].textContent="Control"}}
+ if(v.offsetParent!==null&&Date.now()-lt>20000){lt=Date.now();load()}}
+setInterval(tick,1200);setTimeout(tick,700);
+})();
+/* ===== /CONTROL TAB JS ===== */
+'''
+i=s.rfind('</style>'); s=s[:i]+css+s[i:]
+j=s.rfind('</script>'); s=s[:j]+js+s[j:]
+open(f,'w',encoding='utf-8').write(s)
+print('OK')
