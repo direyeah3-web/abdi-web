@@ -47,7 +47,8 @@ def send(chat, text, kb=None):
 
 def menu():
     return [[{"text": "1 day", "callback_data": "g:1"}, {"text": "7 days", "callback_data": "g:7"}, {"text": "30 days", "callback_data": "g:30"}],
-            [{"text": "Last keys", "callback_data": "l"}, {"text": "Stats", "callback_data": "s"}]]
+            [{"text": "Last keys", "callback_data": "l"}, {"text": "Stats", "callback_data": "s"}],
+            [{"text": "Expiring", "callback_data": "e"}, {"text": "Free keys", "callback_data": "f"}]]
 
 def schema():
     rows = db("/license_keys?select=*&limit=1")
@@ -138,6 +139,81 @@ def do_stats(chat):
     free = [k for k in ks if not k.get("assigned_to")]
     send(chat, "📊 <b>Stats</b>\nTotal: %d\nActive: %d\nExpired: %d\nUnassigned: %d" % (len(ks), len(act), len(exp), len(free)), menu())
 
+import threading
+
+def do_extend(chat, key, days):
+    sc = schema()
+    k = find(key)
+    if not k:
+        return send(chat, "❌ Key not found.")
+    now = datetime.now(timezone.utc)
+    e = parse(k.get(sc["exp"]))
+    base = e if (e and e > now) else now
+    new = base + timedelta(days=days)
+    db("/license_keys?key=eq.%s" % urllib.parse.quote(key), "PATCH", {sc["exp"]: new.isoformat()}, "return=minimal")
+    log("Key extended +%d days" % days)
+    send(chat, "✅ Extended +%d days\n<code>%s</code>\nNew expiry: %s" % (days, key, new.strftime("%d %b %Y")))
+
+def do_expiring(chat, days):
+    sc = schema()
+    ks = db("/license_keys?select=*&limit=1000")
+    now = datetime.now(timezone.utc)
+    rows = []
+    for k in ks:
+        e = parse(k.get(sc["exp"]))
+        if e and is_on(k) and now < e <= now + timedelta(days=days):
+            rows.append((e, k))
+    rows.sort(key=lambda x: x[0])
+    if not rows:
+        return send(chat, "✅ No keys expiring within %d days." % days, menu())
+    t = "⏰ <b>Expiring within %d days</b>\n\n" % days
+    send(chat, t + "\n".join("<code>%s</code> · %s" % (k["key"], e.strftime("%d %b")) for e, k in rows[:30]), menu())
+
+def do_expired(chat):
+    sc = schema()
+    ks = db("/license_keys?select=*&limit=1000")
+    now = datetime.now(timezone.utc)
+    rows = [k for k in ks if parse(k.get(sc["exp"])) and parse(k.get(sc["exp"])) < now]
+    if not rows:
+        return send(chat, "✅ No expired keys.", menu())
+    send(chat, "🔴 <b>Expired keys (%d)</b>\n\n" % len(rows) + "\n".join("<code>%s</code>" % k["key"] for k in rows[:30]), menu())
+
+def do_free(chat):
+    sc = schema()
+    ks = db("/license_keys?select=*&limit=1000")
+    now = datetime.now(timezone.utc)
+    rows = []
+    for k in ks:
+        e = parse(k.get(sc["exp"]))
+        if not k.get("assigned_to") and is_on(k) and not (e and e < now):
+            rows.append(k)
+    if not rows:
+        return send(chat, "No free keys.", menu())
+    send(chat, "🟢 <b>Free keys (%d)</b>\n\n" % len(rows) + "\n".join("<code>%s</code>" % k["key"] for k in rows[:30]), menu())
+
+ALERTED = set()
+
+def alerts():
+    time.sleep(30)
+    while True:
+        try:
+            sc = schema()
+            ks = db("/license_keys?select=*&limit=1000")
+            now = datetime.now(timezone.utc)
+            soon = []
+            for k in ks:
+                e = parse(k.get(sc["exp"]))
+                if e and is_on(k) and now < e <= now + timedelta(days=2) and k["key"] not in ALERTED:
+                    ALERTED.add(k["key"])
+                    soon.append((e, k))
+            if soon:
+                t = "⏰ <b>Keys expiring within 2 days</b>\n\n" + "\n".join("<code>%s</code> · %s" % (k["key"], e.strftime("%d %b %H:%M")) for e, k in soon)
+                for a in ADMINS:
+                    send(a, t)
+        except Exception as ex:
+            print("alerts:", ex)
+        time.sleep(3600)
+
 HELP = ("🔑 <b>Abdi Key Bot</b>\n\n"
         "/gen [days] [devices] [qty] - create keys\n"
         "/keys - last 10 keys\n"
@@ -146,6 +222,10 @@ HELP = ("🔑 <b>Abdi Key Bot</b>\n\n"
         "/off KEY - deactivate\n"
         "/del KEY - delete\n"
         "/stats - totals\n"
+        "/extend KEY DAYS - add days\n"
+        "/expiring [days] - ending soon\n"
+        "/expired - expired keys\n"
+        "/free - unassigned keys\n"
         "/myid - your Telegram ID")
 
 def handle(chat, uid, text):
@@ -166,6 +246,16 @@ def handle(chat, uid, text):
         qty = n[2] if len(n) > 2 else 1
         days = max(1, min(days, 3650)); dev = max(1, min(dev, 100)); qty = max(1, min(qty, 50))
         return do_gen(chat, days, dev, qty)
+    if c == "/extend":
+        if len(p) < 3 or not p[2].isdigit():
+            return send(chat, "Usage: /extend KEY DAYS\nExample: /extend ABCD-EFGH-IJKL-MNOP 30")
+        return do_extend(chat, p[1].upper(), max(1, min(int(p[2]), 3650)))
+    if c == "/expiring":
+        return do_expiring(chat, int(p[1]) if len(p) > 1 and p[1].isdigit() else 7)
+    if c == "/expired":
+        return do_expired(chat)
+    if c == "/free":
+        return do_free(chat)
     if c == "/keys":
         return do_list(chat)
     if c == "/stats":
@@ -203,6 +293,10 @@ def handle_cb(cb):
         do_list(chat)
     elif d == "s":
         do_stats(chat)
+    elif d == "e":
+        do_expiring(chat, 7)
+    elif d == "f":
+        do_free(chat)
     elif d.startswith("d:"):
         db("/license_keys?key=eq.%s" % urllib.parse.quote(d[2:]), "DELETE", None, "return=minimal")
         log("Key la tirtiray")
@@ -215,6 +309,7 @@ def main():
         print("❌ .env is incomplete")
         return
     print("✅ Bot running. Ctrl+C to stop.")
+    threading.Thread(target=alerts, daemon=True).start()
     off = 0
     while True:
         try:
