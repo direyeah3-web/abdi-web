@@ -254,6 +254,17 @@ td{padding:14px 6px;border-bottom:.5px solid rgba(255,255,255,.07)!important;col
 *{-webkit-touch-callout:none}
 input,textarea{-webkit-user-select:text;user-select:text}
 /* ===== /IOS ALL ===== */
+
+/* ===== APPLE BLUE ===== */
+*{--cr:10!important;--cg:132!important;--cb:255!important;--ac:#0a84ff!important;-webkit-tap-highlight-color:transparent}
+::selection{background:rgba(10,132,255,.35)}
+a{color:#0a84ff}
+.ab-prim.ab-prim,.pbtn.pbtn{background:#0a84ff!important;color:#fff!important;border:none!important;font-weight:600!important;box-shadow:0 8px 24px rgba(10,132,255,.35)!important}
+.ab-prim.ab-prim *,.pbtn.pbtn *{color:#fff!important}
+.ab-prim.ab-prim:active,.pbtn.pbtn:active{background:#0066d6!important;transform:scale(.97)}
+input:focus,select:focus,textarea:focus{outline:none!important;border-color:#0a84ff!important;box-shadow:0 0 0 3px rgba(10,132,255,.25)!important}
+#tab>.on,#tab>.active,#tab>[aria-selected="true"],#tab .on,#tab .active{color:#0a84ff!important}
+/* ===== /APPLE BLUE ===== */
 </style><meta name="theme-color" content="#000000"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head><body>
 <aside id="side"><div class="brand">Abdi</div></aside>
@@ -921,32 +932,7 @@ catch(e){if(!(e&&e.message==="auth"))$("v-control").innerHTML='<div class="card 
 loadCtl();
 }
 
-/* ===== MONO THEME JS ===== */
-try{(function(){
-var d=document.documentElement;
-['--cr','--cg','--cb'].forEach(function(v){d.style.setProperty(v,'255')});
-function q(c){var m=(c||'').match(/[\d.]+/g);return m?m.map(Number):[0,0,0,0]}
-function run(){
-document.querySelectorAll('body *').forEach(function(el){
-if(el.closest('#ab-toast'))return;
-var cs=getComputedStyle(el),b=q(cs.backgroundColor),r=b[0],g=b[1],bl=b[2],a=b.length>3?b[3]:1;
-var w=el.offsetWidth,h=el.offsetHeight;
-if(a>0.15){
-if(r>180&&g<150&&bl<90&&r-g>70){el.classList.add('ab-mono-bg');return}
-if(bl>r+35&&bl>g+15&&r<60){el.classList.add('ab-mono-soft');return}
-var sq=w>=30&&w<=70&&h>=30&&h<=70;
-if(sq&&g>140&&r<110&&bl<130&&g-r>60){el.classList.add('ab-tile');return}
-if(sq&&Math.abs(r-g)<10&&Math.abs(g-bl)<12&&r>90&&r<190){el.classList.add('ab-tile');return}
-}
-var c=q(cs.color);
-if(c[0]>180&&c[1]<150&&c[2]<90&&c[0]-c[1]>70)el.classList.add('ab-mono-fg');
-else if(c[2]>150&&c[0]<80&&c[2]-c[0]>90)el.classList.add('ab-mono-fg');
-});}
-var t;function sch(){clearTimeout(t);t=setTimeout(run,250)}
-new MutationObserver(sch).observe(document.body,{childList:true,subtree:true});
-sch();setTimeout(run,1200);
-})()}catch(e){console.log(e)}
-/* ===== /MONO THEME JS ===== */
+
 
 /* ===== ACT CHART JS ===== */
 (function(){
@@ -1026,4 +1012,22 @@ try{document.addEventListener("click",function(e){
  if(e.target.closest&&e.target.closest("button,#tab>*,.kc,.pbtn")&&navigator.vibrate)navigator.vibrate(8)
 },true)}catch(e){}
 /* ===== /IOS ALL JS ===== */
+
+/* ===== APPLE BLUE JS ===== */
+try{
+document.addEventListener("click",function(e){var t=e.target;if(t&&t.closest&&t.closest("h1")){e.stopPropagation();e.stopImmediatePropagation()}},true);
+(function(){
+function q(c){var m=(c||"").match(/[\d.]+/g);return m?m.map(Number):[0,0,0,0]}
+function run(){
+ document.querySelectorAll("button").forEach(function(b){
+  if(b.classList.contains("ab-prim"))return;
+  var w=b.offsetWidth,h=b.offsetHeight;if(w<160||h<44)return;
+  var c=q(getComputedStyle(b).backgroundColor),a=c.length>3?c[3]:1;
+  if(a>.5&&Math.max(c[0],c[1],c[2])>140)b.classList.add("ab-prim")
+ })}
+var t;function sch(){clearTimeout(t);t=setTimeout(run,250)}
+new MutationObserver(sch).observe(document.body,{childList:true,subtree:true});
+sch();setTimeout(run,1200)
+})()}catch(e){console.log(e)}
+/* ===== /APPLE BLUE JS ===== */
 </script></body></html>
